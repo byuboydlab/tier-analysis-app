@@ -1,5 +1,69 @@
 <html>
     <body>
-        <h1>This is a test!</h1>
-    </body>
+        <h1>
+            This is a test!
+        </h1><br/>
+
+        <!-- Filepath inputs -->
+        Data File:<br/>
+        <span id="input_file"></span>
+        <button id="input_file_button">
+            Browse
+        </button>
+        <br/><br/>
+        Config File:<br/>
+        <span id="config_file"></span>
+        <button id="config_file_button">
+            Browse
+        </button>
+        <br/><br/>
+        Output Folder:<br/>
+        <button id="output_folder_button">
+            Browse
+        </button>
+        <span id="output_folder"></span><br/><br/>
+
+        <!-- Operations -->
+        
+        Run tier comparison?<br/>
+        <input type="radio" id="compare_tier_yes" name="should_compare_tiers" value="true">
+        <label for="compare_tier_yes">Yes</label><br/>
+        <input type="radio" id="compare_tier_no" name="should_compare_tiers" value="false">
+        <label for="compare_tier_no">No</label><br/>
+        <br/>
+        Get node breakdown thresholds?<br/>
+        <input type="radio" id="get_thresholds_yes" name="should_get_thresholds" value="true">
+        <label for="get_thresholds_yes">Yes</label><br/>
+        <input type="radio" id="get_thresholds_no" name="should_get_thresholds" value="false">
+        <label for="get_thresholds_no">No</label><br/>
+        <br/>
+
+        <!-- Parallel -->
+        <label for="tiers_parallel">Compare tiers parallel mode:</label>
+        <select id="tiers_parallel">
+            <option value="'auto'">Auto</option>
+            <option value="'repeat'">Repeat</option>
+            <option value="'rho'">Rho</option>
+            <option value="'all'">All</option>
+            <option value="false">None</option>
+        </select><br/><br/>
+        Get node breakdown thresholds in parallel?<br/>
+        <input type="radio" id="thresholds_parallel_yes" name="thresholds_parallel" value="true">
+        <label for="thresholds_parallel_yes">Yes</label><br/>
+        <input type="radio" id="thresholds_parallel_no" name="thresholds_parallel" value="false">
+        <label for="thresholds_parallel_no">No</label><br/>
+        <br/>
+
+        <!-- General -->
+        <label for="attack_type">Attack method:</label>
+        <select id="attack_type">
+            <option value="'Random'">Random</option>
+            <option value="'Employee'">Employee</option>
+            <option value="'Degree'">Degree</option>
+            <option value="'Pagerank transpose'">Pagerank Transpose</option>
+            <option value="'Pagerank'">Pagerank</option>
+        </select></br><br/>
+        <label for="max_tiers">Maximum tiers used:</label>
+        <input type="text" id="max_tiers" name="max_tiers"><br/><br/>
+        </body>
 </html>
