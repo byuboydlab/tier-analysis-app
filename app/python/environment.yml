@@ -1,4 +1,4 @@
-name: sc_robustness
+name: sc_robustness_app
 channels:
   - conda-forge
 dependencies:
@@ -13,4 +13,5 @@ dependencies:
   - certifi
   - openpyxl
   - tqdm
+  - pyinstaller
 prefix: C:\Users\Isaac\miniforge3\envs\sc_robustness
