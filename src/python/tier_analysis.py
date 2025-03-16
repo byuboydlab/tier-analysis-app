@@ -1,3 +1,4 @@
+import multiprocessing
 import os
 import sys
 import math
@@ -14,6 +15,7 @@ import seaborn as sns
 import dask.distributed as dist
 from copy import deepcopy
 
+multiprocessing.freeze_support()
 
 with open(sys.argv[2], 'rb') as config_file:
     config = tomllib.load(config_file)
