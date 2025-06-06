@@ -1,9 +1,5 @@
 <html>
     <body>
-        <h1>
-            This is a test!
-        </h1><br/>
-
         <!-- Filepath inputs -->
         Data File:<br/>
         <span id="input_file"></span>
@@ -24,7 +20,6 @@
         <span id="output_folder"></span><br/><br/>
 
         <!-- Operations -->
-        
         Run tier comparison?<br/>
         <input type="radio" id="compare_tier_yes" name="should_compare_tiers" value="true">
         <label for="compare_tier_yes">Yes</label><br/>
@@ -65,5 +60,15 @@
         </select></br><br/>
         <label for="max_tiers">Maximum tiers used:</label>
         <input type="text" id="max_tiers" name="max_tiers"><br/><br/>
-        </body>
+
+        <!-- Breakdown -->
+        <label for="reachable_threshold">Reachable node threshold:</label>
+        <input type="text" id="reachable_threshold" name="reachable_threshold"><br/>
+        <label for="breakdown_threshold">Breakdown threshold:</label>
+        <input type="text" id="breakdown_threshold" name="breakdown_threshold"><br/>
+        <label for="thinning_ratio">Thinning ratio:</label>
+        <input type="text" id="thinning_ratio" name="thinning_ratio"><br/>
+        <label for="breakdown_repeats">Repeats per node (for breakdown):</label>
+        <input type="text" id="breakdown_repeats" name="breakdown_repeats"><br/>
+        </body>        
 </html>
