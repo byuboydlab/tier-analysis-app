@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 
 const path = require('node:path');
+const { config } = require('node:process');
 
 const createWindow = () => {
     const win = new BrowserWindow({
@@ -29,4 +30,8 @@ app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit()
     }
+});
+
+app.on('config', (config) => {
+    console.log(config);
 });

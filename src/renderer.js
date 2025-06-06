@@ -1,0 +1,1 @@
+const inputFileButton = document.getElementById('input_file_button');

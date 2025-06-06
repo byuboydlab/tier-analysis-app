@@ -19,5 +19,8 @@
   "homepage": "https://github.com/IsaacUtah1379/cascading-failure-app#readme",
   "devDependencies": {
     "electron": "^35.0.1"
+  },
+  "dependencies": {
+    "@iarna/toml": "^2.2.5"
   }
 }
