@@ -1,4 +1,10 @@
 <html>
+    <head>
+        <meta charset="UTF-8">
+        <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+        <title>Dialog</title>
+    </head>
     <body>
         <!-- Filepath inputs -->
         Data File:<br/>
@@ -66,5 +72,7 @@
         <input type="text" id="breakdown_repeats" name="breakdown_repeats"><br/><br/>
 
         <button id="submit">Run</button>
-        </body>
+
+        <script src='./renderer.js'></script>
+    </body>
 </html>

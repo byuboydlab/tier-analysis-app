@@ -1,5 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
-contextBridge.exposeInMainWorld('mainAPI', {
-  sendConfig: (config) => ipcRenderer.send('config', config)
+contextBridge.exposeInMainWorld('electronAPI', {
+    getFilePath: () => ipcRenderer.invoke('get-file-path'),
+    sendConfig: (config) => ipcRenderer.send('config', config)
 });

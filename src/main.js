@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 
 const path = require('node:path');
 const { config } = require('node:process');
@@ -8,7 +8,7 @@ const createWindow = () => {
       width: 800,
       height: 600,
       webPreferences: {
-        preload: path.join(__dirname, 'src', 'preload.js')
+        preload: path.join(__dirname, 'preload.js')
       }
     })
   
@@ -24,6 +24,15 @@ app.whenReady().then(() => {
             createWindow()
         }
     })
+
+    ipcMain.handle('get-file-path', () => {
+        console.log('Test!');
+        return 'test';
+    })
+
+    app.on('config', (config) => {
+        console.log(config);
+    });
 });
 
 app.on('window-all-closed', () => {
@@ -32,6 +41,4 @@ app.on('window-all-closed', () => {
     }
 });
 
-app.on('config', (config) => {
-    console.log(config);
-});
+
