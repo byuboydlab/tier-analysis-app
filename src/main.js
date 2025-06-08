@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 
 const path = require('node:path');
 const { config } = require('node:process');
@@ -25,9 +25,20 @@ app.whenReady().then(() => {
         }
     })
 
-    ipcMain.handle('get-file-path', () => {
-        console.log('Test!');
-        return 'test';
+    ipcMain.handle('get-file-path', (event, isFile) => {
+        let filePath;
+
+        if (isFile) {
+            filePath = dialog.showOpenDialogSync({properties: ['openFile']});
+        } else {
+            filePath = dialog.showOpenDialogSync({properties: ['openDirectory']});
+        }
+
+        if (filePath) {
+            return filePath;
+        } else {
+            return '';
+        }
     })
 
     app.on('config', (config) => {
