@@ -41,7 +41,7 @@ app.whenReady().then(() => {
         }
     })
 
-    app.on('config', (config) => {
+    app.on('run', (event, config) => {
         console.log(config);
     });
 });
