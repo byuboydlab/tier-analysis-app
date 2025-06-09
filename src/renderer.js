@@ -21,9 +21,9 @@ runButton.addEventListener('click', (event) => {
         outputFolder: outputFolderPath.innerText,
         config: {
             general: {
-                attack_type: document.getElementById('attack_type') ? document.getElementById('attack_type').value : null,
+                attack_type: document.getElementById('attack_type').value,
                 has_metadata: false,
-                max_tiers: '' //FIXME
+                max_tiers: document.getElementById('max_tiers').value
             },
             operations: {
                 compare_tiers: document.querySelector('input[name="should_compare_tiers"]:checked') ? document.querySelector('input[name="should_compare_tiers"]:checked').value : null,
@@ -34,10 +34,10 @@ runButton.addEventListener('click', (event) => {
                 thresholds_parallel: document.querySelector('input[name="thresholds_parallel"]:checked') ? document.querySelector('input[name="thresholds_parallel"]:checked').value : null
             },
             breakdown_thresholds: {
-                reachable_node_threshold: '', //FIXME
-                breakdown_threshold: '', //FIXME
-                thinning_ratio: '', //FIXME
-                repeats_per_node: '' //FIXME
+                reachable_node_threshold: document.getElementById('reachable_threshold').value,
+                breakdown_threshold: document.getElementById('breakdown_threshold').value,
+                thinning_ratio: document.getElementById('thinning_ratio').value,
+                repeats_per_node: document.getElementById('breakdown_repeats').value
             }
         }
     }

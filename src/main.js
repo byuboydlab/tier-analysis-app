@@ -35,6 +35,20 @@ function verifyParams(params) {
     }
 }
 
+function preprocessConfig(config) {
+    for (const key in config) {
+        for (const subKey in config[key]) {
+            if (config[key][subKey] == 'true') {
+                config[key][subKey] = true;
+            } else if (config[key][subKey] == 'false') {
+                config[key][subKey] = false;
+            }
+        }
+    }
+
+    return config;
+}
+
 app.whenReady().then(() => {
     createWindow()
 
@@ -62,7 +76,7 @@ app.whenReady().then(() => {
 
     ipcMain.on('run', (event, params) => {
         if (verifyParams(params)) {
-
+            params.config = preprocessConfig(params.config);
         } else {
             dialog.showMessageBox({ message: "All parameters must have a selected value. Make sure none of the options are blank." })
         }
