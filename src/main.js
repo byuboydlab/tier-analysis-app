@@ -15,6 +15,25 @@ const createWindow = () => {
     win.loadFile('src/index.html')
 }
 
+function verifyConfig(config) {
+    for (const key in config) {
+        for (const subKey in config[key]) {
+            if (config[key][subKey] == null || config[key][subKey] == '') {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+function verifyParams(params) {
+    if (params.inputFile == '' || params.outputFolder == '' || !verifyConfig(params.config)) {
+        return false;
+    } else {
+        return true;
+    }
+}
 
 app.whenReady().then(() => {
     createWindow()
@@ -41,8 +60,13 @@ app.whenReady().then(() => {
         }
     })
 
-    app.on('run', (event, config) => {
-        console.log(config);
+    ipcMain.on('run', (event, params) => {
+        if (verifyParams(params)) {
+
+        } else {
+            dialog.showMessageBox({ message: "All parameters must have a selected value. Make sure none of the options are blank." })
+        }
+        console.log(params);
     });
 });
 
