@@ -17,9 +17,7 @@ const createWindow = () => {
 
 function verifyConfig(config) {
     for (const key in config) {
-        console.log(key);
         for (const subKey in config[key]) {
-            console.log(subKey)
             if (config[key][subKey] == null || config[key][subKey] === '') {
                 console.log(config[key][subKey]);
                 return false;
@@ -45,7 +43,7 @@ function preprocessConfig(config) {
                 config[key][subkey] = true;
             } else if (config[key][subkey] == 'false') {
                 config[key][subkey] = false;
-            } else if (parseFloat(config[key][subkey]) != NaN) {
+            } else if (!isNaN(parseFloat(config[key][subkey]))) {
                 config[key][subkey] = parseFloat(config[key][subkey]);
             }
         }
@@ -82,10 +80,12 @@ app.whenReady().then(() => {
     ipcMain.on('run', (event, params) => {
         if (verifyParams(params)) {
             params.config = preprocessConfig(params.config);
+
+            // Write config to userData path
+            // Run bundled pyInstaller file using config and args
         } else {
             dialog.showMessageBox({ message: "All parameters must have a selected value. Make sure none of the options are blank." })
         }
-        console.log(params);
     });
 });
 
