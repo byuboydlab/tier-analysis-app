@@ -17,8 +17,11 @@ const createWindow = () => {
 
 function verifyConfig(config) {
     for (const key in config) {
+        console.log(key);
         for (const subKey in config[key]) {
-            if (config[key][subKey] == null || config[key][subKey] == '') {
+            console.log(subKey)
+            if (config[key][subKey] == null || config[key][subKey] === '') {
+                console.log(config[key][subKey]);
                 return false;
             }
         }
@@ -37,11 +40,13 @@ function verifyParams(params) {
 
 function preprocessConfig(config) {
     for (const key in config) {
-        for (const subKey in config[key]) {
-            if (config[key][subKey] == 'true') {
-                config[key][subKey] = true;
-            } else if (config[key][subKey] == 'false') {
-                config[key][subKey] = false;
+        for (const subkey in config[key]) {
+            if (config[key][subkey] == 'true') {
+                config[key][subkey] = true;
+            } else if (config[key][subkey] == 'false') {
+                config[key][subkey] = false;
+            } else if (parseFloat(config[key][subkey]) != NaN) {
+                config[key][subkey] = parseFloat(config[key][subkey]);
             }
         }
     }
