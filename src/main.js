@@ -1,5 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 
+const TOML = require('@iarna/toml')
+
 const path = require('node:path');
 const { config } = require('node:process');
 
@@ -81,7 +83,15 @@ app.whenReady().then(() => {
         if (verifyParams(params)) {
             params.config = preprocessConfig(params.config);
 
+            // DEBUG
+            console.log(params.config);
+
+            // TODO
             // Write config to userData path
+            let tomlString = TOML.stringify(params.config);
+            console.log(tomlString);
+
+            // TODO
             // Run bundled pyInstaller file using config and args
         } else {
             dialog.showMessageBox({ message: "All parameters must have a selected value. Make sure none of the options are blank." })
