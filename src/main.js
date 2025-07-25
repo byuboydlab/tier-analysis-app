@@ -3,6 +3,7 @@ const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const TOML = require('@iarna/toml')
 
 const path = require('node:path');
+const fs = require('node:fs')
 const { config } = require('node:process');
 
 const createWindow = () => {
@@ -83,13 +84,10 @@ app.whenReady().then(() => {
         if (verifyParams(params)) {
             params.config = preprocessConfig(params.config);
 
-            // DEBUG
-            console.log(params.config);
-
-            // TODO
-            // Write config to userData path
             let tomlString = TOML.stringify(params.config);
-            console.log(tomlString);
+            let configPath = app.getPath("userData") + '\\config.toml';
+
+            fs.writeFileSync(configPath, tomlString);
 
             // TODO
             // Run bundled pyInstaller file using config and args
