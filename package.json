@@ -1,5 +1,6 @@
 {
   "name": "cascading-failure-app",
+  "productName": "Cascading Failure Analysis",
   "version": "1.0.0",
   "description": "App wrapped around sc_robustness",
   "main": "src/main.js",

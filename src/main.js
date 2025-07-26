@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 
 const TOML = require('@iarna/toml')
 
@@ -56,6 +56,8 @@ function preprocessConfig(config) {
 }
 
 app.whenReady().then(() => {
+    Menu.setApplicationMenu(null);
+
     createWindow()
 
     app.on('activate', () => {
