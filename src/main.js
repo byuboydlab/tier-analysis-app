@@ -91,8 +91,22 @@ app.whenReady().then(() => {
 
             fs.writeFileSync(configPath, tomlString);
 
-            // TODO
-            // Run bundled pyInstaller file using config and args
+            //DEBUG
+            let exePath = path.join(__dirname, 'executables', 'tier_analysis.exe');
+
+            let tierProc = childProc.spawn(exePath, [path.basename(params.inputFile), configPath, params.outputFolder], { cwd: path.dirname(params.inputFile) });
+
+            tierProc.stdout.on('data', (data) => {
+                console.log(`stdout: ${data}`);
+            })
+
+            tierProc.stderr.on('data', (err) => {
+                console.log(`stderr: ${err}`);
+            })
+
+            tierProc.on('close', (code) => {
+                console.log(`tierProc closed with code ${code}`);
+            })
         } else {
             dialog.showMessageBox({ message: "All parameters must have a selected value. Make sure none of the options are blank." })
         }
