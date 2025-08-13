@@ -3,8 +3,8 @@ const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const TOML = require('@iarna/toml')
 
 const path = require('node:path');
-const fs = require('node:fs')
-const { config } = require('node:process');
+const fs = require('node:fs');
+const childProc = require('node:child_process');
 
 const createWindow = () => {
     const win = new BrowserWindow({
