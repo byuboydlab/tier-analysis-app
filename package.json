@@ -6,7 +6,24 @@
   "main": "src/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "io.github.byuboydlab.tier-analysis-app",
+    "files": [
+      "src/*",
+      "!src/executables",
+      "!src/icon",
+      "!src/python"
+    ],
+    "extraFiles": [
+      {
+        "from": "src/executables/tier_analysis.exe",
+        "to": "executables/tier_analysis.exe"
+      }
+    ],
+    "icon": "src/icon/boyd_logo_rounded_corners.png"
   },
   "repository": {
     "type": "git",
