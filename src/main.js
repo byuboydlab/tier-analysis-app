@@ -115,8 +115,7 @@ app.whenReady().then(() => {
         if (childProcCount > 0){
             let choice = dialog.showMessageBoxSync(window, {message: `You already have ${childProcCount} process(es) running from this app! Running more without waiting for the others to finish may cause system instability. Are you sure you want to proceed?`, buttons: ['Yes', 'No']});
             if (choice == 0) {
-                analyze(event, params);
-                
+                analyze(event, params);    
             }
         } else {
             analyze(event, params);
