@@ -137,5 +137,4 @@ dist
 
 # PyInstaller
 build
-*.spec
 executables
