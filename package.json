@@ -1,8 +1,8 @@
 {
-  "name": "cascading-failure-app",
-  "productName": "Cascading Failure Analysis",
+  "name": "tier-analysis-app",
+  "productName": "Cascading Failure Tier Analysis",
   "version": "1.0.0",
-  "description": "App wrapped around sc_robustness",
+  "description": "A graphical app wrapped around the byuboydlab/tier_analysis repo",
   "main": "src/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/IsaacUtah1379/cascading-failure-app.git"
+    "url": "git+https://github.com/byuboydlab/tier-analysis-app.git"
   },
   "author": "Isaac Elmer",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/IsaacUtah1379/cascading-failure-app/issues"
+    "url": "https://github.com/byuboydlab/tier-analysis-app/issues"
   },
-  "homepage": "https://github.com/IsaacUtah1379/cascading-failure-app#readme",
+  "homepage": "https://github.com/byuboydlab/tier-analysis-app#readme",
   "devDependencies": {
     "electron": "^35.0.1"
   },
