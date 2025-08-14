@@ -6,6 +6,9 @@ const path = require('node:path');
 const fs = require('node:fs');
 const childProc = require('node:child_process');
 
+let childProcCount = 0;
+let window;
+
 const createWindow = () => {
     const win = new BrowserWindow({
       width: 800,
@@ -16,6 +19,7 @@ const createWindow = () => {
     })
   
     win.loadFile('src/index.html')
+    return win;
 }
 
 function verifyConfig(config) {
@@ -55,14 +59,39 @@ function preprocessConfig(config) {
     return config;
 }
 
+function analyze(event, params) {
+    if (verifyParams(params)) {
+        params.config = preprocessConfig(params.config);
+
+        let tomlString = TOML.stringify(params.config);
+        let configPath = app.getPath("userData") + '\\config.toml';
+
+        fs.writeFileSync(configPath, tomlString);
+
+        //DEBUG
+        let exePath = path.join(__dirname, 'executables', 'tier_analysis.exe');
+
+        let tierProc = childProc.spawn(exePath, [path.basename(params.inputFile), configPath, params.outputFolder], { cwd: path.dirname(params.inputFile) });
+        childProcCount++;
+
+        tierProc.on('close', (code) => {
+            childProcCount--;
+            console.log(`tierProc closed with code ${code}`);
+        })
+
+        dialog.showMessageBox(window, {message: 'Analysis process launched!'});
+    } else {
+         dialog.showMessageBox({ message: "All parameters must have a selected value. Make sure none of the options are blank." })
+    }
+}
+
 app.whenReady().then(() => {
     Menu.setApplicationMenu(null);
-
-    createWindow()
+    window = createWindow();
 
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
-            createWindow()
+            window = createWindow();
         }
     })
 
@@ -70,7 +99,7 @@ app.whenReady().then(() => {
         let filePath;
 
         if (isFile) {
-            filePath = dialog.showOpenDialogSync({properties: ['openFile']});
+            filePath = dialog.showOpenDialogSync({properties: ['openFile'], filters: [{name: 'Excel Spreadsheet', extensions: ['xlsx']}]});
         } else {
             filePath = dialog.showOpenDialogSync({properties: ['openDirectory']});
         }
@@ -83,32 +112,15 @@ app.whenReady().then(() => {
     })
 
     ipcMain.on('run', (event, params) => {
-        if (verifyParams(params)) {
-            params.config = preprocessConfig(params.config);
-
-            let tomlString = TOML.stringify(params.config);
-            let configPath = app.getPath("userData") + '\\config.toml';
-
-            fs.writeFileSync(configPath, tomlString);
-
-            //DEBUG
-            let exePath = path.join(__dirname, 'executables', 'tier_analysis.exe');
-
-            let tierProc = childProc.spawn(exePath, [path.basename(params.inputFile), configPath, params.outputFolder], { cwd: path.dirname(params.inputFile) });
-
-            tierProc.stdout.on('data', (data) => {
-                console.log(`stdout: ${data}`);
-            })
-
-            tierProc.stderr.on('data', (err) => {
-                console.log(`stderr: ${err}`);
-            })
-
-            tierProc.on('close', (code) => {
-                console.log(`tierProc closed with code ${code}`);
-            })
+        if (childProcCount > 0){
+            let choice = dialog.showMessageBoxSync(window, {message: `You already have ${childProcCount} process(es) running from this app! Running more without waiting for the others to finish may cause system instability. Are you sure you want to proceed?`, buttons: ['Yes', 'No']});
+            if (choice == 0) {
+                //DEBUG
+                //analyze(event, params);
+                console.log('Fake extra process')
+            }
         } else {
-            dialog.showMessageBox({ message: "All parameters must have a selected value. Make sure none of the options are blank." })
+            analyze(event, params);
         }
     });
 });
@@ -119,4 +131,20 @@ app.on('window-all-closed', () => {
     }
 });
 
+app.on('will-quit', (event) => {
+    let messageChunk;
+    if (process.platform == 'win32') {
+        messageChunk = 'Task Manager';
+    } else if (process.platform == 'darwin') {
+        messageChunk = 'Activity Monitor';
+    } else if (process.platform == 'linux') {
+        messageChunk = 'the command line';
+    }
 
+    if (childProcCount > 0){
+        let choice = dialog.showMessageBoxSync(window, {message: `You still have ${childProcCount} process(es) running! Would you like them to run in the background? (If your answer is yes, you will only be able to manually kill the processes by using ${messageChunk} or a similar tool.)`, buttons: ['Yes', 'No']});
+        if (choice == 0) {
+            event.preventDefault();
+        }
+    }
+});
