@@ -1,7 +1,7 @@
 {
   "name": "tier-analysis-app",
   "productName": "Cascading Failure Tier Analysis",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "A graphical app wrapped around the byuboydlab/tier_analysis repo",
   "main": "src/main.js",
   "scripts": {
