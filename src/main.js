@@ -68,7 +68,6 @@ function analyze(event, params) {
 
         fs.writeFileSync(configPath, tomlString);
 
-        //DEBUG
         let exePath = path.join(__dirname, 'executables', 'tier_analysis.exe');
 
         let tierProc = childProc.spawn(exePath, [path.basename(params.inputFile), configPath, params.outputFolder], { cwd: path.dirname(params.inputFile) });
