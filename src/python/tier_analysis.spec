@@ -5,10 +5,7 @@ a = Analysis(
     ['tier_analysis.py'],
     pathex=[],
     binaries=[],
-    datas=[
-        ('C:\\Users\\Isaac\\miniforge3\\envs\\sc_robustness_app\\Lib\\site-packages\\distributed\\distributed.yaml', 'distributed'),
-        ('C:\\Users\\Isaac\\miniforge3\\envs\\sc_robustness_app\\Lib\\site-packages\\distributed\\dashboard\\theme.yaml', 'distributed/dashboard')
-    ],
+    datas=[],
     hiddenimports=[
         'matplotlib.backends.backend_svg',
         'distributed.http.scheduler',
@@ -25,7 +22,7 @@ a = Analysis(
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
-    noarchive=False,
+    noarchive=True,
     optimize=0,
 )
 pyz = PYZ(a.pure)
