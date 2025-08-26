@@ -6,7 +6,6 @@ import datetime
 import tomllib
 import itertools
 import random
-import tqdm
 import numpy as np
 import pandas as pd
 import igraph as ig
@@ -433,7 +432,7 @@ def failure_reachability_sweep(G,
 
         targeted = targeted_factory(G)
 
-        for r in tqdm.tqdm(rho, desc='Reachability sweep', leave=False):
+        for r in rho:
             avgs.append(
                 failure_reachability_single(
                     r,
@@ -505,7 +504,7 @@ def failure_reachability(G,
     elif parallel == 'rho':
         avgs = [failure_reachability_sweep(*args[0], parallel='rho')]
     else:
-        avgs = [failure_reachability_sweep(*args[0]) for _ in tqdm.tqdm(range(repeats), desc='Reachability tier', leave=False)]
+        avgs = [failure_reachability_sweep(*args[0]) for _ in range(repeats)]
     avgs = pd.concat(avgs, ignore_index=True)
 
     if plot:
@@ -591,7 +590,7 @@ def compare_tiers(G,
 
     G = deepcopy(G) # We don't want to modify the original graph
     res = pd.DataFrame() # Final results
-    for tiers in tqdm.tqdm(reversed(tier_range), total=len(tier_range), desc = 'Compare tiers'): # iterate over the number of tiers included
+    for tiers in reversed(tier_range): # iterate over the number of tiers included
         G = reduce_tiers(G, tiers) # Reduce the graph to the desired number of tiers
 
         # Call failure_reachability with the reduced graph
