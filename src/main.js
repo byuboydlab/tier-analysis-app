@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 
 const TOML = require('@iarna/toml')
+const treeKill = require('tree-kill');
 
 const path = require('node:path');
 const fs = require('node:fs');
@@ -157,6 +158,6 @@ app.on('will-quit', (event) => {
 
 app.on('quit', (event) => {
     for (const key in allProcesses) {
-        allProcesses[key].kill();
+        treeKill(key);
     }
 });
