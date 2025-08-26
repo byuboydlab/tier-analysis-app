@@ -712,6 +712,8 @@ if __name__ == '__main__':
     else:
         client = None
 
+    print('Beginning analysis')
+
     df = get_df()
     G = igraph_simple(df)
     get_node_tier_from_edge_tier(G)
@@ -730,11 +732,14 @@ if __name__ == '__main__':
         else:
             raise ValueError("Valid values of attack_type are 'Random', 'Employee', 'Degree', 'Pagerank', and 'Pagerank transpose'")
 
+        print('Comparing tiers')
+
         res = compare_tiers(G, parallel = config['parallel']['tiers_parallel_mode'], attack = factory)
         dists = between_tier_distances(res)
         print(dists)
 
     if config['operations']['get_thresholds']:
+        print('Getting node breakdown thresholds')
 
         itercount = 0
 
