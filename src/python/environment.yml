@@ -6,12 +6,10 @@ dependencies:
   - numpy
   - pandas
   - python-igraph=0.11.6
-  - matplotlib
-  - seaborn
-  - dask
+  - dask-core
+  - distributed
   - cachey
   - certifi
   - openpyxl
-  - tqdm
   - pyinstaller
 prefix: C:\Users\Isaac\miniforge3\envs\sc_robustness
