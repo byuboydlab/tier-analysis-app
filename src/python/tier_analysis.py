@@ -22,14 +22,7 @@ with open(sys.argv[2], 'rb') as config_file:
 
 
 def get_df(extra_tiers=False):
-    global file_name
-
-    files = list(os.scandir())
-    files = [x for x in files if x.is_file() and x.name == sys.argv[1]]
-    if len(files) == 0:
-        raise Exception('No files match the data file name given!')
-    else:
-        file_name = files[0]
+    file_name = sys.argv[1]
 
     df = pd.read_excel(file_name, sheet_name="Sheet1", engine='openpyxl')
     df = df.drop_duplicates(ignore_index=True)
@@ -545,7 +538,7 @@ def compare_tiers(G,
     # Save the results
     fname = 'compare_tiers_' + failure_scale + '_' + \
         attack.description.replace(' ', '_').lower()\
-        + '_' + sys.argv[1].replace('.xlsx', '') + '_' + start_time
+        + '_' + os.path.basename(sys.argv[1]).replace('.xlsx', '') + '_' + start_time
     res.to_excel(results_dir + fname + '.xlsx')
 
 
@@ -580,7 +573,7 @@ def between_tier_distances(res, rho = "Percent firms remaining", attack=random_t
     distances_df = pd.DataFrame(list(distances.items()), columns=['Tier count', 'Distance'])
 
     fname = 'between_tier_distances_' + failure_scale + '_' + \
-        attack.description.replace(' ', '_').lower() + '_' + sys.argv[1].replace('.xlsx', '') + '_' + start_time + '.xlsx'
+        attack.description.replace(' ', '_').lower() + '_' + os.path.basename(sys.argv[1]).replace('.xlsx', '') + '_' + start_time + '.xlsx'
     distances_df.to_excel(results_dir + fname)
 
     return distances_df
