@@ -12,4 +12,6 @@ dependencies:
   - certifi
   - openpyxl
   - pyinstaller
+  - matplotlib
+  - seaborn
 prefix: C:\Users\Isaac\miniforge3\envs\sc_robustness
