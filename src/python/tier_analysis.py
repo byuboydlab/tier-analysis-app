@@ -509,7 +509,7 @@ def failure_reachability(G,
             + '_range_' + str(rho[0]) + '_' + str(rho[-1])\
             + '_repeats_' + str(repeats)\
             + (('software_excluded' if G_has_no_software_flag else 'software_included') if G_has_no_software_flag is not None else '')\
-            + sys.argv[1].replace('.xlsx', '') + '_' + start_time
+            + os.path.basename(sys.argv[1]).replace('.xlsx', '') + '_' + start_time
         failure_plot(avgs[avgs.columns[:-2]],
                      plot_title=plot_title,
                      save_only=save_only,
@@ -558,7 +558,7 @@ def compare_tiers_plot(res,
             + '_' + attack.description.replace(' ', '_').lower()\
             + '_range_' + str(rho[0]) + '_' + str(rho[-1])\
             + '_tiers_' + str(res['Tier count'].min()) + '_' + str(res['Tier count'].max())\
-            + '_' + sys.argv[1].replace('.xlsx', '') + '_' + start_time
+            + '_' + os.path.basename(sys.argv[1]).replace('.xlsx', '') + '_' + start_time
         plt.savefig(results_dir + fname + '.svg')
 
 
@@ -781,7 +781,7 @@ if __name__ == '__main__':
                 itercount += 1
 
         fname = 'breakdown_thresholds_{0:.2f}_{1:.3f}'.format(config['breakdown_thresholds']['breakdown_threshold'], config['breakdown_thresholds']['thinning_ratio'])
-        fname = fname + '_' + sys.argv[1].replace('.xlsx', '') + '_' + start_time + '.xlsx'
+        fname = fname + '_' + os.path.basename(sys.argv[1]).replace('.xlsx', '') + '_' + start_time + '.xlsx'
 
         thresholds.to_excel(results_dir + fname)
 
