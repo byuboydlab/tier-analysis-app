@@ -40,7 +40,6 @@
     "electron-builder": "^26.0.12"
   },
   "dependencies": {
-    "@iarna/toml": "^2.2.5",
-    "tree-kill": "^1.2.2"
+    "@iarna/toml": "^2.2.5"
   }
 }
