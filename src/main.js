@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 
 const TOML = require('@iarna/toml')
+const findProcess = require('find-process');
 
 const path = require('node:path');
 const fs = require('node:fs');
@@ -156,5 +157,10 @@ app.on('will-quit', (event) => {
 });
 
 app.on('quit', (event) => {
-    
+    findProcess.find('name', 'tier_analysis_app_IsaacUtah1379')
+        .then((list) => {
+            list.forEach((item) => {
+                process.kill(item.pid);
+            });
+        });
 });

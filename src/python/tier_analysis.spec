@@ -33,7 +33,7 @@ exe = EXE(
     a.binaries,
     a.datas,
     [],
-    name='tier_analysis',
+    name='tier_analysis_app_IsaacUtah1379',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
