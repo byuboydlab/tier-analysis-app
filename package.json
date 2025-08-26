@@ -19,8 +19,8 @@
     ],
     "extraFiles": [
       {
-        "from": "src/executables/tier_analysis.exe",
-        "to": "executables/tier_analysis.exe"
+        "from": "src/executables/tier_analysis_app_IsaacUtah1379.exe",
+        "to": "executables/tier_analysis_app_IsaacUtah1379.exe"
       }
     ],
     "icon": "src/icon/boyd_logo_rounded_corners.png"
