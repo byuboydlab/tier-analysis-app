@@ -9,6 +9,8 @@ const childProc = require('node:child_process');
 let childProcCount = 0;
 let window;
 
+let allProcesses = {};
+
 const createWindow = () => {
     const win = new BrowserWindow({
       width: 800,
@@ -73,8 +75,15 @@ function analyze(event, params) {
         let tierProc = childProc.spawn(exePath, [path.basename(params.inputFile), configPath, params.outputFolder], { cwd: path.dirname(params.inputFile) });
         childProcCount++;
 
+        allProcesses[tierProc.pid] = tierProc;
+
+        tierProc.stdout.on('data', (data) => {
+            console.log(data);
+        })
+
         tierProc.on('close', (code) => {
             childProcCount--;
+            delete allProcesses[tierProc.pid];
             console.log(`tierProc closed with code ${code}`);
         })
 
@@ -143,5 +152,11 @@ app.on('will-quit', (event) => {
         if (choice == 0) {
             event.preventDefault();
         }
+    }
+});
+
+app.on('quit', (event) => {
+    for (const key in allProcesses) {
+        allProcesses[key].kill();
     }
 });
