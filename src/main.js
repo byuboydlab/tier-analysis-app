@@ -10,8 +10,6 @@ const childProc = require('node:child_process');
 let childProcCount = 0;
 let window;
 
-let allProcesses = {};
-
 const createWindow = () => {
     const win = new BrowserWindow({
       width: 800,
@@ -73,10 +71,8 @@ function analyze(event, params) {
 
         let exePath = path.join(path.dirname(app.getPath('exe')), 'executables', 'tier_analysis_app_IsaacUtah1379.exe');
 
-        let tierProc = childProc.spawn(exePath, [path.basename(params.inputFile), configPath, params.outputFolder], { cwd: path.dirname(params.inputFile) });
+        let tierProc = childProc.spawn(exePath, [path.basename(params.inputFile), configPath, params.outputFolder], { detached: true, cwd: path.dirname(params.inputFile) });
         childProcCount++;
-
-        allProcesses[tierProc.pid] = tierProc;
 
         tierProc.stdout.on('data', (data) => {
             console.log(data);
@@ -84,7 +80,6 @@ function analyze(event, params) {
 
         tierProc.on('close', (code) => {
             childProcCount--;
-            delete allProcesses[tierProc.pid];
             console.log(`tierProc closed with code ${code}`);
         })
 
@@ -135,30 +130,5 @@ app.whenReady().then(() => {
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit()
-    }
-});
-
-app.on('will-quit', (event) => {
-    let messageChunk;
-    if (process.platform == 'win32') {
-        messageChunk = 'Task Manager';
-    } else if (process.platform == 'darwin') {
-        messageChunk = 'Activity Monitor';
-    } else if (process.platform == 'linux') {
-        messageChunk = 'the command line';
-    }
-
-    if (childProcCount > 0){
-        let choice = dialog.showMessageBoxSync(window, {message: `You still have ${childProcCount} process(es) running! Would you like them to run in the background? (If your answer is yes, you will only be able to manually kill the processes by using ${messageChunk} or a similar tool.)`, buttons: ['Yes', 'No']});
-        if (choice == 0) {
-            event.preventDefault();
-        } else {
-            find('name', 'tier_analysis_app_IsaacUtah1379')
-                .then((list) => {
-                    list.forEach((item) => {
-                        process.kill(item.pid);
-                    });
-                });
-        }
     }
 });
