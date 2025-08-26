@@ -1,6 +1,3 @@
-# This is apparently important for using PyInstaller to get a single exe
-import sys ; sys.setrecursionlimit(sys.getrecursionlimit() * 5)
-
 import multiprocessing
 import os
 import sys
@@ -12,6 +9,8 @@ import random
 import numpy as np
 import pandas as pd
 import igraph as ig
+import matplotlib.pyplot as plt
+import seaborn as sns
 import dask.distributed as dist
 from copy import deepcopy
 
@@ -332,6 +331,32 @@ def get_pagerank_attack_no_transpose(G, protected_countries=[]):
 get_pagerank_attack_no_transpose.description = 'Pagerank'
 
 
+def failure_plot(
+        avgs,
+        plot_title='Supply chain resilience under firm failures',
+        save_only=False,
+        filename=None):
+
+    rho = avgs.columns[0]
+    ax = []
+    ax = [
+        sns.lineplot(
+            x=rho,
+            y=col,
+            label=col,
+            data=avgs,
+            errorbar=(
+                'pi',
+                95)) for col in avgs.columns]
+    ax[0].set(xlabel=rho,
+              ylabel='Percent of firms',
+              title=plot_title)
+    plt.legend()
+
+    if save_only:
+        plt.savefig(filename)
+
+
 def failure_reachability_single(
         r,
         G,
@@ -475,6 +500,21 @@ def failure_reachability(G,
         avgs = [failure_reachability_sweep(*args[0]) for _ in range(repeats)]
     avgs = pd.concat(avgs, ignore_index=True)
 
+    if plot:
+        plot_title = targeted_factory.description.capitalize() + ' '\
+            + failure_scale + ' failures'\
+            + ((' excluding software firms' if G_has_no_software_flag else ' including software firms') if G_has_no_software_flag is not None else '')
+        fname = failure_scale\
+            + '_' + targeted_factory.description.replace(' ', '_').lower()\
+            + '_range_' + str(rho[0]) + '_' + str(rho[-1])\
+            + '_repeats_' + str(repeats)\
+            + (('software_excluded' if G_has_no_software_flag else 'software_included') if G_has_no_software_flag is not None else '')\
+            + sys.argv[1].replace('.xlsx', '') + '_' + start_time
+        failure_plot(avgs[avgs.columns[:-2]],
+                     plot_title=plot_title,
+                     save_only=save_only,
+                     filename= results_dir + fname + '.svg')
+
     return avgs
 
 
@@ -494,6 +534,32 @@ def reduce_tiers(G, tiers):
         except BaseException:
             pass
     return G
+
+
+def compare_tiers_plot(res,
+                       rho=np.linspace(.3, 1, 71),
+                       failure_scale='firm',
+                       attack=random_thinning_factory,
+                       save=True):
+
+    global start_time
+
+    rho = "Percent " + get_plural(failure_scale) + " remaining"
+    ax = sns.lineplot(
+        x=rho,
+        y=percent_terminal_suppliers_reachable.description,
+        data=res,
+        hue='Tier count',
+        errorbar=('pi', 95),
+        legend='full')
+    ax.set(title=attack.description.capitalize() + ' failures')
+    if save:
+        fname = failure_scale\
+            + '_' + attack.description.replace(' ', '_').lower()\
+            + '_range_' + str(rho[0]) + '_' + str(rho[-1])\
+            + '_tiers_' + str(res['Tier count'].min()) + '_' + str(res['Tier count'].max())\
+            + '_' + sys.argv[1].replace('.xlsx', '') + '_' + start_time
+        plt.savefig(results_dir + fname + '.svg')
 
 
 def compare_tiers(G,
@@ -541,6 +607,8 @@ def compare_tiers(G,
         + '_' + os.path.basename(sys.argv[1]).replace('.xlsx', '') + '_' + start_time
     res.to_excel(results_dir + fname + '.xlsx')
 
+    if plot:
+        compare_tiers_plot(res, rho, failure_scale, attack, save)
 
     return res
 
@@ -644,15 +712,11 @@ if __name__ == '__main__':
     else:
         client = None
 
-    print('Beginning analysis')
-
     df = get_df()
     G = igraph_simple(df)
     get_node_tier_from_edge_tier(G)
 
     if config['operations']['compare_tiers']:
-        print('Comparing tiers')
-
         if config['general']['attack_type'] == 'Random':
             factory = random_thinning_factory
         elif config['general']['attack_type'] == 'Employee':
@@ -671,8 +735,6 @@ if __name__ == '__main__':
         print(dists)
 
     if config['operations']['get_thresholds']:
-        print('Get node breakdown thresholds' \
-        '')
 
         itercount = 0
 
