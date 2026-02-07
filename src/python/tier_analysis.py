@@ -16,6 +16,9 @@ from copy import deepcopy
 
 multiprocessing.freeze_support()
 
+if (len(sys.argv) != 4):
+    raise RuntimeError(f"tier_analysis.py expects three arguments; {len(sys.argv) - 1} were found")
+
 with open(sys.argv[2], 'rb') as config_file:
     config = tomllib.load(config_file)
 
