@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "electron .",
     "build-python": "mamba run -n tier-analysis-app --cwd ./src/python pyinstaller tier_analysis.spec",
-    "build-app": "electron-builder"
+    "build-app": "electron-builder",
+    "build": "pnpm build-python && pnpm build-app"
   },
   "build": {
     "appId": "io.github.byuboydlab.tier-analysis-app",
