@@ -17,19 +17,25 @@
       "!src/icon",
       "!src/python"
     ],
-    "extraFiles": [
-      {
-        "from": "src/executables/tier_analysis_app_IsaacUtah1379.exe",
-        "to": "executables/tier_analysis_app_IsaacUtah1379.exe"
-      }
-    ],
     "icon": "src/icon/boyd_logo_rounded_corners.png",
     "linux": {
+      "extraFiles": [
+        {
+          "from": "src/executables/tier_analysis_app_IsaacUtah1379",
+          "to": "executables/tier_analysis_app_IsaacUtah1379"
+        }
+      ],
       "target": [
         "AppImage"
       ]
     },
     "win": {
+      "extraFiles": [
+        {
+          "from": "src/executables/tier_analysis_app_IsaacUtah1379.exe",
+          "to": "executables/tier_analysis_app_IsaacUtah1379.exe"
+        }
+      ],
       "target": [
         "nsis"
       ]
