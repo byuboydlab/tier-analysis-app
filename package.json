@@ -21,7 +21,7 @@
     "linux": {
       "extraFiles": [
         {
-          "from": "src/executables/tier_analysis_app_IsaacUtah1379",
+          "from": "src/python/dist/tier_analysis_app_IsaacUtah1379",
           "to": "executables/tier_analysis_app_IsaacUtah1379"
         }
       ],
@@ -32,7 +32,7 @@
     "win": {
       "extraFiles": [
         {
-          "from": "src/executables/tier_analysis_app_IsaacUtah1379.exe",
+          "from": "src/python/dist/tier_analysis_app_IsaacUtah1379.exe",
           "to": "executables/tier_analysis_app_IsaacUtah1379.exe"
         }
       ],
