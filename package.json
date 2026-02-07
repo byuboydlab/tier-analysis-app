@@ -54,7 +54,7 @@
   },
   "homepage": "https://github.com/byuboydlab/tier-analysis-app#readme",
   "devDependencies": {
-    "electron": "^35.7.5",
+    "electron": "^40.2.1",
     "electron-builder": "^26.7.0"
   },
   "dependencies": {
