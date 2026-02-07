@@ -69,7 +69,14 @@ function analyze(event, params) {
 
         fs.writeFileSync(configPath, tomlString);
 
-        let exePath = path.join(path.dirname(app.getPath('exe')), 'executables', 'tier_analysis_app_IsaacUtah1379.exe');
+        let exePath;
+        if (process.platform === 'win32') {
+            exePath = path.join(path.dirname(app.getPath('exe')), 'executables', 'tier_analysis_app_IsaacUtah1379.exe');
+        } else if (process.platform === 'linux') {
+            exePath = path.join(path.dirname(app.getPath('exe')), 'executables', 'tier_analysis_app_IsaacUtah1379')
+        } else {
+            throw new Error('This platform is not currently supported!');
+        }
 
         let tierProc = childProc.spawn(exePath, [path.basename(params.inputFile), configPath, params.outputFolder], { detached: true, cwd: path.dirname(params.inputFile) });
         childProcCount++;
