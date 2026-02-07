@@ -1,4 +1,4 @@
-name: sc_robustness_app
+name: tier-analysis-app
 channels:
   - conda-forge
 dependencies:
@@ -14,4 +14,3 @@ dependencies:
   - pyinstaller
   - matplotlib
   - seaborn
-prefix: C:\Users\Isaac\miniforge3\envs\sc_robustness
