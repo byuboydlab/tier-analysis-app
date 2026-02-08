@@ -49,7 +49,9 @@ def get_df(extra_tiers: bool = False) -> pd.DataFrame:
             'Target Private']:
         try:  # in case these columns are not there
             df[col] = df[col].astype(str)
-        except BaseException:
+        except BaseException as e:
+            print(e)
+            print("I don't like how this error is being swallowed...")
             pass
     for col in [
         'Source Market Cap',
@@ -524,7 +526,7 @@ def failure_reachability(G,
     return avgs
 
 
-def reduce_tiers(G, tiers):
+def reduce_tiers(G: ig.Graph, tiers: int) -> ig.Graph:
     # This can delete some edges even if tier=max_tier, since there can be
     # edges of tier max_tier+1
     G = deepcopy(G)
@@ -748,7 +750,7 @@ if __name__ == '__main__':
         itercount = 0
 
         # get nodes with at least reachable_node_threshold of reachable nodes
-        nodes = G.vs.select(Tier=0)
+        nodes: ig.VertexSeq = G.vs.select(Tier=0)
         reachability_counts = pd.DataFrame(data=np.zeros(len(nodes)), index=nodes['name'], columns=['counts'])
         
         for node in nodes:
