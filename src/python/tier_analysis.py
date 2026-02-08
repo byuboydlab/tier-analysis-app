@@ -305,7 +305,7 @@ def get_degree_attack(G: ig.Graph):
 get_degree_attack.description = 'Degree'
 
 
-def get_pagerank_attack(G, transpose=True, protected_countries=[]):
+def get_pagerank_attack(G: ig.Graph, transpose: bool=True, protected_countries=[]):
 
     attrname = 'Pagerank of transpose' if transpose else 'Pagerank'
     try:
@@ -326,7 +326,7 @@ def get_pagerank_attack(G, transpose=True, protected_countries=[]):
 get_pagerank_attack.description = 'Pagerank of transpose'
 
 
-def get_pagerank_attack_no_transpose(G, protected_countries=[]):
+def get_pagerank_attack_no_transpose(G: ig.Graph, protected_countries=[]):
     return get_pagerank_attack(
         G,
         transpose=False,
@@ -363,7 +363,7 @@ def failure_plot(
 
 
 def failure_reachability_single(
-        r,
+        rho,
         G,
         demand_nodes=None,
         ts=None,
@@ -378,7 +378,7 @@ def failure_reachability_single(
     if targeted is None:
         targeted = random_thinning_factory(G)
 
-    G_thin = targeted(r, failure_scale=failure_scale)
+    G_thin = targeted(rho, failure_scale=failure_scale)
     demand_nodes_thin = {
         i_thin['name']: i_thin.index for i_thin in G_thin.vs if i_thin['name'] in demand_nodes}
 
