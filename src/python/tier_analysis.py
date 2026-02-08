@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import dask.distributed as dist
 from copy import deepcopy
-from typing import Any
+from typing import Any, Literal
 
 multiprocessing.freeze_support()
 
@@ -49,10 +49,8 @@ def get_df(extra_tiers: bool = False) -> pd.DataFrame:
             'Target Private']:
         try:  # in case these columns are not there
             df[col] = df[col].astype(str)
-        except BaseException as e:
-            print(e)
-            print("I don't like how this error is being swallowed...")
-            pass
+        except KeyError as e:
+            print(f'Ignoring KeyError {e}')
     for col in [
         'Source Market Cap',
         'Target Market Cap',
@@ -63,14 +61,13 @@ def get_df(extra_tiers: bool = False) -> pd.DataFrame:
         try:  # in case these columns are not there
             df.loc[df[col] == '(Invalid Identifier)', col] = math.nan
             df[col] = df[col].astype(float)
-        except BaseException as e:
-            print(e)
-            print("This error probably shouldn't be swallowed...")
+        except KeyError as e:
+            print(f'Ignoring KeyError {e}')
 
     return df
 
 
-def get_demand_nodes(G):
+def get_demand_nodes(G: ig.Graph) -> list[ig.Vertex]:
     return list({x.target_vertex for x in G.es(Tier=1)})
 
 
@@ -88,7 +85,7 @@ def igraph_simple(edge_df) -> ig.Graph:
     return G
 
 
-def get_node_tier_from_edge_tier(G) -> None:
+def get_node_tier_from_edge_tier(G: ig.Graph) -> None:
 
     # iterate through the nodes and assign each node the minimum tier of the
     # edges leaving it
@@ -127,7 +124,7 @@ def get_terminal_nodes(node, G: ig.Graph):
     return terminal_nodes
 
 
-def get_upstream(i_thick, G_thick: ig.Graph, G_thin: ig.Graph, demand_nodes_thin=None, direction='IN'):
+def get_upstream(i_thick, G_thick: ig.Graph, G_thin: ig.Graph, demand_nodes_thin=None, direction: Literal['in', 'out', 'all']='in'):
     if isinstance(i_thick, ig.Vertex):
         i_thick = i_thick.index
 
@@ -140,8 +137,8 @@ def get_upstream(i_thick, G_thick: ig.Graph, G_thin: ig.Graph, demand_nodes_thin
     except ValueError:  # the node we want has been deleted
         return set()
 
-    upstream = G_thin.bfs(i_thin, mode=direction)
-    upstream = upstream[0][:upstream[1][-1]]  # remove trailing zeros
+    G_thin_bfs: tuple[list[int], list[int], list[int]] = G_thin.bfs(i_thin, mode=direction)
+    upstream: list[int] = G_thin_bfs[0][:G_thin_bfs[1][-1]]  # remove trailing zeros
 
     ids = G_thin.vs['name']
     upstream_nodes = {ids[i] for i in upstream}
