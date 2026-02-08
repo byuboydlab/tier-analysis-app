@@ -33,9 +33,8 @@ def get_df(extra_tiers: bool = False) -> pd.DataFrame:
     try:
         df = df[df['Relationship Type'] == 'Supplier']
         df.reset_index()
-    except BaseException as e:
-        print(e)
-        print("This error probably shouldn't be swallowed like this...")
+    except KeyError as e:
+            print(f'Ignoring KeyError {e}')
 
     # resolve NaNs for better typing
     for col in [
