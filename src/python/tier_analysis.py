@@ -399,7 +399,7 @@ def failure_reachability_sweep(G,
                                                71),
                                demand_nodes=None,
                                ts=None,
-                               failure_scale='firm',
+                               failure_scale: Literal['firm', 'country', 'industry', 'country-industry']='firm',
                                callbacks=callbacks,
                                targeted_factory=random_thinning_factory,
                                parallel=None):
@@ -456,7 +456,7 @@ def failure_reachability(G,
                          plot=True,
                          save_only=False,
                          repeats=1,
-                         failure_scale='firm',
+                         failure_scale: Literal['firm', 'country', 'industry', 'country-industry']='firm',
                          targeted_factory=random_thinning_factory,
                          parallel='auto',
                          callbacks=callbacks,
@@ -543,7 +543,7 @@ def reduce_tiers(G: ig.Graph, tiers: int) -> ig.Graph:
 
 def compare_tiers_plot(res,
                        rho=np.linspace(.3, 1, 71),
-                       failure_scale='firm',
+                       failure_scale: Literal['firm', 'country', 'industry', 'country-industry']='firm',
                        attack=random_thinning_factory,
                        save=True):
 
@@ -573,7 +573,7 @@ def compare_tiers(G,
                   plot=True,
                   save=True,
                   attack=random_thinning_factory,
-                  failure_scale='firm',
+                  failure_scale: Literal['firm', 'country', 'industry', 'country-industry']='firm',
                   tier_range=range(1, config['general']['max_tiers'] + 1),
                   parallel='auto'):
     """
