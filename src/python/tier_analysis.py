@@ -651,9 +651,9 @@ def compare_tiers_plot(
 def compare_tiers(
     G: ig.Graph,
     rho: npt.NDArray[np.float64]=np.linspace(0.3, 1, 71),
-    repeats=24,
-    plot=True,
-    save=True,
+    repeats: int=24,
+    plot: bool=True,
+    save: bool=True,
     attack=random_thinning_factory,
     failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
     tier_range=range(1, config["general"]["max_tiers"] + 1),
@@ -670,7 +670,7 @@ def compare_tiers(
     global start_time
 
     G = deepcopy(G)  # We don't want to modify the original graph
-    res = pd.DataFrame()  # Final results
+    res: pd.DataFrame = pd.DataFrame()  # Final results
     for tiers in reversed(tier_range):  # iterate over the number of tiers included
         G = reduce_tiers(G, tiers)  # Reduce the graph to the desired number of tiers
 
@@ -719,7 +719,7 @@ def between_tier_distances(
     rho="Percent firms remaining",
     attack=random_thinning_factory,
     failure_scale="firm",
-):
+) -> pd.DataFrame:
     """
     Computes the uniform distance between the mean of each tier and the mean of the final tier.
 
@@ -746,11 +746,11 @@ def between_tier_distances(
     }
 
     # Convert distances dictionary to a DataFrame
-    distances_df = pd.DataFrame(
+    distances_df: pd.DataFrame = pd.DataFrame(
         list(distances.items()), columns=["Tier count", "Distance"]
     )
 
-    fname = (
+    fname: str = (
         "between_tier_distances_"
         + failure_scale
         + "_"
@@ -768,7 +768,7 @@ def between_tier_distances(
 
 def get_node_breakdown_threshold(
     node,
-    G,
+    G: ig.Graph,
     breakdown_threshold=config["breakdown_thresholds"]["breakdown_threshold"],
     thinning_ratio=config["breakdown_thresholds"]["thinning_ratio"],
 ):
@@ -783,7 +783,9 @@ def get_node_breakdown_threshold(
     # repeatedly delete thinning_ratio percent of nodes from G until there is
     # no path from node to at least breakdown_threshold percent of the farther
     # upstream nodes
-    G_thin = G.copy()
+
+    # TODO: How does G.copy() compare to deepcopy(G)?
+    G_thin: ig.Graph = G.copy()
     reachable_node_count = len(terminal_nodes)
     while reachable_node_count >= breakdown_threshold * len(terminal_nodes):
         # delete thinning_ratio percent of nodes from G_thin
