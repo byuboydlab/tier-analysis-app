@@ -252,9 +252,9 @@ def target_by_attribute(G: ig.Graph, attr: str, protected_countries=[]):
 
     sorted_attr_inds: dict[str, list[int]] = get_sorted_attr_inds(G, attr)
 
-    def targeted(rho, failure_scale="firm") -> ig.Graph:
+    def targeted(r, failure_scale="firm") -> ig.Graph:
         to_keep: list[int] = sorted_attr_inds[failure_scale][
-            : int(len(sorted_attr_inds[failure_scale]) * rho)
+            : int(len(sorted_attr_inds[failure_scale]) * r)
         ]
         if failure_scale == "firm":
             return G.induced_subgraph(
@@ -397,8 +397,8 @@ def failure_reachability_single(
     if targeted is None:
         targeted = random_thinning_factory(G)
 
-    G_thin = targeted(r, failure_scale=failure_scale)
-    demand_nodes_thin = {
+    G_thin: ig.Graph = targeted(r, failure_scale=failure_scale)
+    demand_nodes_thin: dict[str, int] = {
         i_thin["name"]: i_thin.index
         for i_thin in G_thin.vs
         if i_thin["name"] in demand_nodes
