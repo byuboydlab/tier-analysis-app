@@ -281,6 +281,7 @@ def get_employee_attack(G: ig.Graph, protected_countries=[]):
     try:
         G.vs['Employees_imputed']
     except BaseException as e:
+        print(f'Error {e} of type {type(e)} was ignored.')
         G.vs['Employees_imputed'] = [math.isnan(x) for x in G.vs['Employees']]
     size_dist_private = np.array([x['Employees']
                                  for x in G.vs if not x['Employees_imputed']])
@@ -393,8 +394,8 @@ def failure_reachability_single(
     return res
 
 
-def failure_reachability_sweep(G,
-                               rho=np.linspace(.3,
+def failure_reachability_sweep(G: ig.Graph,
+                               rho: np_typing.NDArray[np.float64]=np.linspace(.3,
                                                1,
                                                71),
                                demand_nodes=None,
@@ -567,7 +568,7 @@ def compare_tiers_plot(res,
         plt.savefig(results_dir + fname + '.svg')
 
 
-def compare_tiers(G,
+def compare_tiers(G: ig.Graph,
                   rho=np.linspace(.3, 1, 71),
                   repeats=24,
                   plot=True,
