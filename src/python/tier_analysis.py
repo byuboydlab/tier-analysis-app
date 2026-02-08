@@ -19,6 +19,7 @@ import tomllib
 
 multiprocessing.freeze_support()
 
+# TODO: this is already called in __main__, but cannot be removed until some function calls are moved to __main__
 if len(sys.argv) != 4:
     raise RuntimeError(
         f"tier_analysis.py expects three arguments; {len(sys.argv) - 1} were found"
@@ -28,9 +29,7 @@ with open(sys.argv[2], "rb") as config_file:
     config: dict[str, Any] = tomllib.load(config_file)
 
 
-def get_df(extra_tiers: bool = False) -> pd.DataFrame:
-    file_name: str = sys.argv[1]
-
+def get_df(file_name: str, extra_tiers: bool = False) -> pd.DataFrame:
     df: pd.DataFrame = pd.read_excel(file_name, sheet_name="Sheet1", engine="openpyxl")
     df = df.drop_duplicates(ignore_index=True)
 
@@ -842,7 +841,7 @@ if __name__ == "__main__":
 
     print("Beginning analysis")
 
-    df: pd.DataFrame = get_df()
+    df: pd.DataFrame = get_df(sys.argv[1])
     G: ig.Graph = igraph_simple(df)
     get_node_tier_from_edge_tier(G)
 
