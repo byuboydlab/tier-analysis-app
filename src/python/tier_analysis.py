@@ -363,17 +363,17 @@ def failure_plot(
 def failure_reachability_single(
         r,
         G,
-        demand_nodes=False,
-        ts=False,
+        demand_nodes=None,
+        ts=None,
         failure_scale='firm',
         callbacks=callbacks,
-        targeted=False):
+        targeted=None):
 
-    if not demand_nodes:
+    if demand_nodes is None:
         demand_nodes = get_demand_nodes(G)
-    if not ts:
+    if ts is None:
         ts = [set(get_terminal_nodes(i, G)) for i in demand_nodes]
-    if not targeted:
+    if targeted is None:
         targeted = random_thinning_factory(G)
 
     G_thin = targeted(r, failure_scale=failure_scale)
@@ -395,21 +395,21 @@ def failure_reachability_sweep(G,
                                rho=np.linspace(.3,
                                                1,
                                                71),
-                               demand_nodes=False,
-                               ts=False,
+                               demand_nodes=None,
+                               ts=None,
                                failure_scale='firm',
                                callbacks=callbacks,
                                targeted_factory=random_thinning_factory,
-                               parallel=False):
+                               parallel=None):
     # global failure_reachability_sweep
 
     if failure_scale == 'industry':
         G = deepcopy(G)
         impute_industry(G)
 
-    if not demand_nodes:
+    if demand_nodes is None:
         demand_nodes = [i.index for i in get_demand_nodes(G)]
-    if ts == False:
+    if ts is None:
         ts = [set(get_terminal_nodes(i, G)) for i in demand_nodes]
 
     avgs = []
