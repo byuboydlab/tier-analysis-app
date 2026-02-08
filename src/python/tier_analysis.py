@@ -229,11 +229,11 @@ def get_sorted_attr_inds(G: ig.Graph, attr: str) -> dict[str, list[int]]:
 
 def target_by_attribute(G: ig.Graph, attr: str, protected_countries=[]):
 
-    sorted_attr_inds = get_sorted_attr_inds(G, attr)
+    sorted_attr_inds: dict[str, list[int]] = get_sorted_attr_inds(G, attr)
 
-    def targeted(r, failure_scale='firm'):
-        to_keep = sorted_attr_inds[failure_scale][:int(
-            len(sorted_attr_inds[failure_scale]) * r)]
+    def targeted(rho, failure_scale='firm') -> ig.Graph:
+        to_keep: list[int] = sorted_attr_inds[failure_scale][:int(
+            len(sorted_attr_inds[failure_scale]) * rho)]
         if failure_scale == 'firm':
             return G.induced_subgraph(
                 to_keep +
@@ -280,7 +280,7 @@ random_thinning_factory.description = 'Random'
 def get_employee_attack(G: ig.Graph, protected_countries=[]):
     try:
         G.vs['Employees_imputed']
-    except BaseException:
+    except BaseException as e:
         G.vs['Employees_imputed'] = [math.isnan(x) for x in G.vs['Employees']]
     size_dist_private = np.array([x['Employees']
                                  for x in G.vs if not x['Employees_imputed']])
@@ -297,7 +297,7 @@ def get_employee_attack(G: ig.Graph, protected_countries=[]):
 get_employee_attack.description = 'Employees'
 
 
-def get_degree_attack(G):
+def get_degree_attack(G: ig.Graph):
     G.vs['degree'] = G.degree(range(G.vcount()))
     return target_by_attribute(G, 'degree')
 
