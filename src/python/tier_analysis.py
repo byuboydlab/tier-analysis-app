@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import dask.distributed as dist
 from copy import deepcopy
+from typing import Any
 
 multiprocessing.freeze_support()
 
@@ -20,13 +21,13 @@ if (len(sys.argv) != 4):
     raise RuntimeError(f"tier_analysis.py expects three arguments; {len(sys.argv) - 1} were found")
 
 with open(sys.argv[2], 'rb') as config_file:
-    config = tomllib.load(config_file)
+    config: dict[str, Any] = tomllib.load(config_file)
 
 
 def get_df(extra_tiers=False):
-    file_name = sys.argv[1]
+    file_name: str = sys.argv[1]
 
-    df = pd.read_excel(file_name, sheet_name="Sheet1", engine='openpyxl')
+    df: pd.DataFrame = pd.read_excel(file_name, sheet_name="Sheet1", engine='openpyxl')
     df = df.drop_duplicates(ignore_index=True)
 
     try:
