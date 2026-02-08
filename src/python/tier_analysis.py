@@ -14,7 +14,7 @@ import seaborn as sns
 import dask.distributed as dist
 from copy import deepcopy
 
-import numpy.typing as np_typing
+import numpy.typing as npt
 from typing import Any, Literal
 
 multiprocessing.freeze_support()
@@ -276,7 +276,7 @@ def target_by_attribute(G: ig.Graph, attr: str, protected_countries=[]):
 
 
 def random_thinning_factory(G: ig.Graph):
-    firm_rands: np_typing.NDArray[np.float64] = np.random.random(G.vcount())
+    firm_rands: npt.NDArray[np.float64] = np.random.random(G.vcount())
 
     uniques = dict()
     perm = dict()
@@ -418,7 +418,7 @@ def failure_reachability_single(
 
 def failure_reachability_sweep(
     G: ig.Graph,
-    rho: np_typing.NDArray[np.float64] = np.linspace(0.3, 1, 71),
+    rho: npt.NDArray[np.float64] = np.linspace(0.3, 1, 71),
     demand_nodes=None,
     ts=None,
     failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
@@ -487,11 +487,11 @@ def failure_reachability_sweep(
 
 
 def failure_reachability(
-    G,
-    rho=np.linspace(0.3, 1, 71),
-    plot=True,
-    save_only=False,
-    repeats=1,
+    G: ig.Graph,
+    rho: npt.NDArray[np.float64]=np.linspace(0.3, 1, 71),
+    plot: bool=True,
+    save_only: bool=False,
+    repeats: int=1,
     failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
     targeted_factory=random_thinning_factory,
     parallel="auto",
@@ -609,17 +609,17 @@ def reduce_tiers(G: ig.Graph, tiers: int) -> ig.Graph:
 
 def compare_tiers_plot(
     res,
-    rho=np.linspace(0.3, 1, 71),
+    rho: npt.NDArray[np.float64]=np.linspace(0.3, 1, 71),
     failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
     attack=random_thinning_factory,
-    save=True,
+    save: bool=True,
 ):
 
     global start_time
 
-    rho = "Percent " + get_plural(failure_scale) + " remaining"
+    rho_label: str = "Percent " + get_plural(failure_scale) + " remaining"
     ax = sns.lineplot(
-        x=rho,
+        x=rho_label,
         y=percent_terminal_suppliers_reachable.description,
         data=res,
         hue="Tier count",
@@ -650,7 +650,7 @@ def compare_tiers_plot(
 
 def compare_tiers(
     G: ig.Graph,
-    rho=np.linspace(0.3, 1, 71),
+    rho: npt.NDArray[np.float64]=np.linspace(0.3, 1, 71),
     repeats=24,
     plot=True,
     save=True,
