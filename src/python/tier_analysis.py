@@ -381,8 +381,8 @@ def failure_plot(
 
 
 def failure_reachability_single(
-    rho,
-    G,
+    r,
+    G: ig.Graph,
     demand_nodes=None,
     ts=None,
     failure_scale="firm",
@@ -397,7 +397,7 @@ def failure_reachability_single(
     if targeted is None:
         targeted = random_thinning_factory(G)
 
-    G_thin = targeted(rho, failure_scale=failure_scale)
+    G_thin = targeted(r, failure_scale=failure_scale)
     demand_nodes_thin = {
         i_thin["name"]: i_thin.index
         for i_thin in G_thin.vs
