@@ -13,6 +13,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import dask.distributed as dist
 from copy import deepcopy
+
+import numpy.typing as np_typing
 from typing import Any, Literal
 
 multiprocessing.freeze_support()
@@ -148,7 +150,7 @@ def get_upstream(i_thick, G_thick: ig.Graph, G_thin: ig.Graph, demand_nodes_thin
     return upstream_nodes
 
 
-def get_plural(x):
+def get_plural(x: Literal['firm', 'country', 'industry', 'country-industry']) -> Literal['firms', 'countries', 'industries', 'country-industries']:
     if x == 'firm':
         return 'firms'
     elif x == 'country':
@@ -161,7 +163,7 @@ def get_plural(x):
         raise NotImplementedError
 
 
-def some_terminal_suppliers_reachable(i, G, G_thin, t=None, u=None):
+def some_terminal_suppliers_reachable(i, G: ig.Graph, G_thin: ig.Graph, t=None, u=None) -> bool:
     if t is None:
         t = get_terminal_nodes(i, G)
     if u is None:
@@ -176,7 +178,7 @@ some_terminal_suppliers_reachable.description = 'Some end suppliers reachable'
 some_terminal_suppliers_reachable.type = bool
 
 
-def percent_terminal_suppliers_reachable(i, G, G_thin, t=None, u=None):
+def percent_terminal_suppliers_reachable(i, G: ig.Graph, G_thin: ig.Graph, t=None, u=None) -> float:
     if t is None:
         t = get_terminal_nodes(i, G)
     if u is None:
@@ -193,7 +195,7 @@ callbacks = [some_terminal_suppliers_reachable,
              percent_terminal_suppliers_reachable]
 
 
-def impute_industry(G):
+def impute_industry(G: ig.Graph) -> None:
     try:
         G['industry_imputed']
     except BaseException:
@@ -207,7 +209,7 @@ def impute_industry(G):
         v['industry'] = s
 
 
-def reverse(G):
+def reverse(G: ig.Graph) -> None:
     Tier = dict(Tier=G.es['Tier'])
     edges = [tuple(reversed(e.tuple)) for e in G.es]
     G.delete_edges(None)
@@ -215,9 +217,8 @@ def reverse(G):
     G.reversed = not G.reversed
 
 
-def get_sorted_attr_inds(G, attr):
-
-    sorted_attr_inds = dict()
+def get_sorted_attr_inds(G: ig.Graph, attr: str) -> dict[str, list[int]]:
+    sorted_attr_inds: dict[str, list[int]] = dict()
     sorted_attr_inds['firm'] = sorted(
         range(G.vcount()), key=G.vs[attr].__getitem__)
     for failure_scale in ['country', 'industry', 'country-industry']:
@@ -226,7 +227,7 @@ def get_sorted_attr_inds(G, attr):
     return sorted_attr_inds
 
 
-def target_by_attribute(G, attr, protected_countries=[]):
+def target_by_attribute(G: ig.Graph, attr: str, protected_countries=[]):
 
     sorted_attr_inds = get_sorted_attr_inds(G, attr)
 
@@ -248,8 +249,8 @@ def target_by_attribute(G, attr, protected_countries=[]):
     return targeted
 
 
-def random_thinning_factory(G):
-    firm_rands = np.random.random(G.vcount())
+def random_thinning_factory(G: ig.Graph):
+    firm_rands: np_typing.NDArray[np.float64] = np.random.random(G.vcount())
 
     uniques = dict()
     perm = dict()
@@ -259,7 +260,7 @@ def random_thinning_factory(G):
             perm[failure_scale] = uniques[failure_scale]
             random.shuffle(perm[failure_scale])
 
-    def attack(rho, failure_scale='firm'):
+    def attack(rho, failure_scale='firm') -> ig.Graph:
         if failure_scale == 'firm':
             return G.induced_subgraph(
                 (firm_rands <= rho).nonzero()[0].tolist())
@@ -276,7 +277,7 @@ def random_thinning_factory(G):
 random_thinning_factory.description = 'Random'
 
 
-def get_employee_attack(G, protected_countries=[]):
+def get_employee_attack(G: ig.Graph, protected_countries=[]):
     try:
         G.vs['Employees_imputed']
     except BaseException:
