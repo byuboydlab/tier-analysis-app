@@ -123,7 +123,7 @@ def get_terminal_nodes(node, G: ig.Graph):
     return terminal_nodes
 
 
-def get_upstream(i_thick, G_thick: ig.Graph, G_thin: ig.Graph, demand_nodes_thin=None, direction: Literal['in', 'out', 'all']='in'):
+def get_upstream(i_thick, G_thick: ig.Graph, G_thin: ig.Graph, demand_nodes_thin=None, direction: Literal['in', 'out', 'all']='in') -> set[str]:
     if isinstance(i_thick, ig.Vertex):
         i_thick = i_thick.index
 
@@ -139,8 +139,8 @@ def get_upstream(i_thick, G_thick: ig.Graph, G_thin: ig.Graph, demand_nodes_thin
     G_thin_bfs: tuple[list[int], list[int], list[int]] = G_thin.bfs(i_thin, mode=direction)
     upstream: list[int] = G_thin_bfs[0][:G_thin_bfs[1][-1]]  # remove trailing zeros
 
-    ids = G_thin.vs['name']
-    upstream_nodes = {ids[i] for i in upstream}
+    ids: list[str] = G_thin.vs['name']
+    upstream_nodes: set[str] = {ids[i] for i in upstream}
 
     # Add the original node to the results
     upstream_nodes = upstream_nodes.union({ids[i_thin]})
