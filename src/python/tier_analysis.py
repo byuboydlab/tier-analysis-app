@@ -1,21 +1,21 @@
+import datetime
+import itertools
+import math
 import multiprocessing
 import os
-import sys
-import math
-import datetime
-import tomllib
-import itertools
 import random
-import numpy as np
-import pandas as pd
+import sys
+from copy import deepcopy
+from typing import Any, Literal
+
+import dask.distributed as dist
 import igraph as ig
 import matplotlib.pyplot as plt
-import seaborn as sns
-import dask.distributed as dist
-from copy import deepcopy
-
+import numpy as np
 import numpy.typing as npt
-from typing import Any, Literal
+import pandas as pd
+import seaborn as sns
+import tomllib
 
 multiprocessing.freeze_support()
 
