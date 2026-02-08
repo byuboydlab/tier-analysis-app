@@ -34,7 +34,7 @@ def get_df(extra_tiers=False):
         df = df[df['Relationship Type'] == 'Supplier']
         df.reset_index()
     except BaseException:
-        pass
+        print("This error probably shouldn't be swallowed like this...")
 
     # resolve NaNs for better typing
     for col in [
