@@ -771,7 +771,7 @@ def get_node_breakdown_threshold(
     G: ig.Graph,
     breakdown_threshold=config["breakdown_thresholds"]["breakdown_threshold"],
     thinning_ratio=config["breakdown_thresholds"]["thinning_ratio"],
-):
+) -> int:
 
     # if node is int, convert to vertex
     if isinstance(node, int):
@@ -789,7 +789,7 @@ def get_node_breakdown_threshold(
     reachable_node_count: int = len(terminal_nodes)
     while reachable_node_count >= breakdown_threshold * len(terminal_nodes):
         # delete thinning_ratio percent of nodes from G_thin
-        to_delete = G_thin.vs(
+        to_delete: ig.VertexSeq = G_thin.vs(
             np.random.randint(0, G_thin.vcount(), int(thinning_ratio * G_thin.vcount()))
         )
         G_thin.delete_vertices(to_delete)
@@ -797,7 +797,7 @@ def get_node_breakdown_threshold(
         # reachable node count
         # find node in G_thin that corresponds to node in G
         try:
-            node_thin = G_thin.vs.select(name=node["name"])[0]
+            node_thin: ig.Vertex = G_thin.vs.select(name=node["name"])[0]
         except (ValueError, IndexError):
             break  # node was deleted
 
