@@ -24,7 +24,7 @@ with open(sys.argv[2], 'rb') as config_file:
     config: dict[str, Any] = tomllib.load(config_file)
 
 
-def get_df(extra_tiers=False):
+def get_df(extra_tiers: bool = False) -> pd.DataFrame:
     file_name: str = sys.argv[1]
 
     df: pd.DataFrame = pd.read_excel(file_name, sheet_name="Sheet1", engine='openpyxl')
@@ -74,8 +74,8 @@ def get_demand_nodes(G):
 
 def igraph_simple(edge_df) -> ig.Graph:
 
-    firm_list = pd.concat((edge_df['Source'], edge_df['Target'])).unique()
-    G = ig.Graph(directed=True)
+    firm_list: pd.DataFrame = pd.concat((edge_df['Source'], edge_df['Target'])).unique()
+    G: ig.Graph = ig.Graph(directed=True)
     G.add_vertices(firm_list)
     G.add_edges(edge_df[['Source', 'Target']].itertuples(index=False))
     G.es['Tier'] = edge_df.Tier.values
@@ -86,7 +86,7 @@ def igraph_simple(edge_df) -> ig.Graph:
     return G
 
 
-def get_node_tier_from_edge_tier(G):
+def get_node_tier_from_edge_tier(G) -> None:
 
     # iterate through the nodes and assign each node the minimum tier of the
     # edges leaving it
@@ -97,7 +97,7 @@ def get_node_tier_from_edge_tier(G):
             node['Tier'] = 0
 
 
-def get_reachable_nodes(node, G):
+def get_reachable_nodes(node, G: ig.Graph) -> set[int]:
     if isinstance(node, ig.Vertex):
         node = node.index
 
@@ -108,7 +108,7 @@ def get_reachable_nodes(node, G):
     return {G.vs['name'][i] for i in u}
 
 
-def get_terminal_nodes(node, G):
+def get_terminal_nodes(node, G: ig.Graph):
     if isinstance(node, ig.Vertex):
         node = node.index
 
@@ -125,7 +125,7 @@ def get_terminal_nodes(node, G):
     return terminal_nodes
 
 
-def get_upstream(i_thick, G_thick, G_thin, demand_nodes_thin=None, direction='IN'):
+def get_upstream(i_thick, G_thick: ig.Graph, G_thin: ig.Graph, demand_nodes_thin=None, direction='IN'):
     if isinstance(i_thick, ig.Vertex):
         i_thick = i_thick.index
 
