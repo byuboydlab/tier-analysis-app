@@ -33,7 +33,8 @@ def get_df(extra_tiers=False):
     try:
         df = df[df['Relationship Type'] == 'Supplier']
         df.reset_index()
-    except BaseException:
+    except BaseException as e:
+        print(e)
         print("This error probably shouldn't be swallowed like this...")
 
     # resolve NaNs for better typing
@@ -60,8 +61,9 @@ def get_df(extra_tiers=False):
         try:  # in case these columns are not there
             df.loc[df[col] == '(Invalid Identifier)', col] = math.nan
             df[col] = df[col].astype(float)
-        except BaseException:
-            pass
+        except BaseException as e:
+            print(e)
+            print("This error probably shouldn't be swallowed...")
 
     return df
 
