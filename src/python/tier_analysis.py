@@ -69,7 +69,7 @@ def get_demand_nodes(G):
     return list({x.target_vertex for x in G.es(Tier=1)})
 
 
-def igraph_simple(edge_df):
+def igraph_simple(edge_df) -> ig.Graph:
 
     firm_list = pd.concat((edge_df['Source'], edge_df['Target'])).unique()
     G = ig.Graph(directed=True)
@@ -712,8 +712,6 @@ if __name__ == '__main__':
             n_cpus = os.cpu_count()
         n = n_cpus - 2
         client = dist.Client(n_workers = n)
-    else:
-        client = None
 
     print('Beginning analysis')
 
