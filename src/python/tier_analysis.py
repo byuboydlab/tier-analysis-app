@@ -786,7 +786,7 @@ def get_node_breakdown_threshold(
 
     # TODO: How does G.copy() compare to deepcopy(G)?
     G_thin: ig.Graph = G.copy()
-    reachable_node_count = len(terminal_nodes)
+    reachable_node_count: int = len(terminal_nodes)
     while reachable_node_count >= breakdown_threshold * len(terminal_nodes):
         # delete thinning_ratio percent of nodes from G_thin
         to_delete = G_thin.vs(
@@ -812,14 +812,14 @@ def get_node_breakdown_threshold(
 
 
 if __name__ == "__main__":
-    start_time = datetime.datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
+    start_time: str = datetime.datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
 
     if len(sys.argv) != 4:
         raise IndexError(
             f"3 arguments were expected, but {len(sys.argv) - 1} were given."
         )
 
-    results_dir = sys.argv[3]
+    results_dir: str = sys.argv[3]
 
     if results_dir[-1] != "/" and os.name == "posix":
         results_dir += "/"
@@ -837,13 +837,13 @@ if __name__ == "__main__":
             n_cpus = len(os.sched_getaffinity(0))
         elif os.name == "nt":
             n_cpus = os.cpu_count()
-        n = n_cpus - 2
-        client = dist.Client(n_workers=n)
+        n: int = n_cpus - 2
+        client: dist.Client = dist.Client(n_workers=n)
 
     print("Beginning analysis")
 
-    df = get_df()
-    G = igraph_simple(df)
+    df: pd.DataFrame = get_df()
+    G: ig.Graph = igraph_simple(df)
     get_node_tier_from_edge_tier(G)
 
     if config["operations"]["compare_tiers"]:
@@ -867,17 +867,17 @@ if __name__ == "__main__":
         res = compare_tiers(
             G, parallel=config["parallel"]["tiers_parallel_mode"], attack=factory
         )
-        dists = between_tier_distances(res)
+        dists: pd.DataFrame = between_tier_distances(res)
         print(dists)
 
     if config["operations"]["get_thresholds"]:
         print("Getting node breakdown thresholds")
 
-        itercount = 0
+        itercount: int = 0
 
         # get nodes with at least reachable_node_threshold of reachable nodes
         nodes: ig.VertexSeq = G.vs.select(Tier=0)
-        reachability_counts = pd.DataFrame(
+        reachability_counts: pd.DataFrame = pd.DataFrame(
             data=np.zeros(len(nodes)), index=nodes["name"], columns=["counts"]
         )
 
@@ -886,13 +886,13 @@ if __name__ == "__main__":
                 get_reachable_nodes(node, G)
             )
 
-        reachability_counts = reachability_counts[
+        reachability_counts: pd.DataFrame = reachability_counts[
             reachability_counts["counts"]
             >= config["breakdown_thresholds"]["reachable_node_threshold"]
         ]  # cutoff to exclude nodes with few reachable nodes
         nodes = nodes.select(name_in=reachability_counts.index)
 
-        thresholds = pd.DataFrame(
+        thresholds: pd.DataFrame = pd.DataFrame(
             np.zeros((len(nodes), config["breakdown_thresholds"]["repeats_per_node"])),
             index=nodes["name"],
             columns=list(range(config["breakdown_thresholds"]["repeats_per_node"])),
@@ -909,7 +909,7 @@ if __name__ == "__main__":
                 )
                 return res
 
-            pairs = [
+            pairs: list[tuple[int, int]] = [
                 (v.index, i)
                 for v, i in itertools.product(
                     nodes, range(config["breakdown_thresholds"]["repeats_per_node"])
@@ -938,7 +938,7 @@ if __name__ == "__main__":
                     )
                 itercount += 1
 
-        fname = "breakdown_thresholds_{0:.2f}_{1:.3f}".format(
+        fname: str = "breakdown_thresholds_{0:.2f}_{1:.3f}".format(
             config["breakdown_thresholds"]["breakdown_threshold"],
             config["breakdown_thresholds"]["thinning_ratio"],
         )
