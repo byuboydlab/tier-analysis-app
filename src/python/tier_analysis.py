@@ -488,10 +488,10 @@ def failure_reachability_sweep(
 
 def failure_reachability(
     G: ig.Graph,
-    rho: npt.NDArray[np.float64]=np.linspace(0.3, 1, 71),
-    plot: bool=True,
-    save_only: bool=False,
-    repeats: int=1,
+    rho: npt.NDArray[np.float64] = np.linspace(0.3, 1, 71),
+    plot: bool = True,
+    save_only: bool = False,
+    repeats: int = 1,
     failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
     targeted_factory=random_thinning_factory,
     parallel="auto",
@@ -609,10 +609,10 @@ def reduce_tiers(G: ig.Graph, tiers: int) -> ig.Graph:
 
 def compare_tiers_plot(
     res,
-    rho: npt.NDArray[np.float64]=np.linspace(0.3, 1, 71),
+    rho: npt.NDArray[np.float64] = np.linspace(0.3, 1, 71),
     failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
     attack=random_thinning_factory,
-    save: bool=True,
+    save: bool = True,
 ):
 
     global start_time
@@ -650,10 +650,10 @@ def compare_tiers_plot(
 
 def compare_tiers(
     G: ig.Graph,
-    rho: npt.NDArray[np.float64]=np.linspace(0.3, 1, 71),
-    repeats: int=24,
-    plot: bool=True,
-    save: bool=True,
+    rho: npt.NDArray[np.float64] = np.linspace(0.3, 1, 71),
+    repeats: int = 24,
+    plot: bool = True,
+    save: bool = True,
     attack=random_thinning_factory,
     failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
     tier_range=range(1, config["general"]["max_tiers"] + 1),
