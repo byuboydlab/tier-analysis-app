@@ -194,7 +194,11 @@ def some_terminal_suppliers_reachable(
 
 
 def percent_terminal_suppliers_reachable(
-    i: ig.Vertex | int, G: ig.Graph, G_thin: ig.Graph, t: set[str] | None = None, u: set[str] | None = None
+    i: ig.Vertex | int,
+    G: ig.Graph,
+    G_thin: ig.Graph,
+    t: set[str] | None = None,
+    u: set[str] | None = None,
 ) -> float:
     """Avg. percent end suppliers reachable"""
 
@@ -294,7 +298,6 @@ def random_thinning_factory(G: ig.Graph):
     return attack
 
 
-
 def get_employee_attack(G: ig.Graph, protected_countries=[]):
     try:
         G.vs["Employees_imputed"]
@@ -312,7 +315,6 @@ def get_employee_attack(G: ig.Graph, protected_countries=[]):
     return target_by_attribute(G, "Employees", protected_countries=protected_countries)
 
 
-
 def get_degree_attack(G: ig.Graph):
     G.vs["degree"] = G.degree(range(G.vcount()))
     return target_by_attribute(G, "degree")
@@ -324,7 +326,7 @@ def get_pagerank_attack(G: ig.Graph, transpose: bool = True, protected_countries
     try:
         G[attrname]
     except BaseException as e:
-        print(f'Error {e} of type {type(e)} was ignored')
+        print(f"Error {e} of type {type(e)} was ignored")
         if transpose:
             reverse(G)
             pr = G.pagerank()
@@ -344,9 +346,9 @@ def get_pagerank_attack_no_transpose(G: ig.Graph, protected_countries=[]):
 
 def failure_plot(
     avgs,
-    plot_title: str="Supply chain resilience under firm failures",
-    save_only: bool=False,
-    filename: str | None=None,
+    plot_title: str = "Supply chain resilience under firm failures",
+    save_only: bool = False,
+    filename: str | None = None,
 ) -> None:
 
     rho = avgs.columns[0]
@@ -365,8 +367,8 @@ def failure_plot(
 def failure_reachability_single(
     r,
     G: ig.Graph,
-    demand_nodes: list[ig.Vertex] | None=None,
-    ts: list[set[str]] | None=None,
+    demand_nodes: list[ig.Vertex] | None = None,
+    ts: list[set[str]] | None = None,
     failure_scale="firm",
     callbacks=callbacks,
     targeted=None,
@@ -387,7 +389,9 @@ def failure_reachability_single(
     }
 
     res = dict()
-    us: list[set[str]] = [get_upstream(i, G, G_thin, demand_nodes_thin) for i in demand_nodes]
+    us: list[set[str]] = [
+        get_upstream(i, G, G_thin, demand_nodes_thin) for i in demand_nodes
+    ]
     for cb in callbacks:
         sample = [
             cb(demand_nodes, G, G_thin, t, u) for i, t, u in zip(demand_nodes, ts, us)
@@ -401,8 +405,8 @@ def failure_reachability_single(
 def failure_reachability_sweep(
     G: ig.Graph,
     rho: npt.NDArray[np.float64] = np.linspace(0.3, 1, 71),
-    demand_nodes: list[int] | None=None,
-    ts: list[set[str]] | None=None,
+    demand_nodes: list[int] | None = None,
+    ts: list[set[str]] | None = None,
     failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
     callbacks=callbacks,
     targeted_factory=random_thinning_factory,
@@ -481,7 +485,7 @@ def failure_reachability(
     callbacks=callbacks,
     G_has_no_software_flag=None,
     prefix="",
-    demand_nodes: list[int] | None=None,
+    demand_nodes: list[int] | None = None,
 ):
 
     global start_time
@@ -587,7 +591,7 @@ def reduce_tiers(G: ig.Graph, tiers: int) -> ig.Graph:
         try:
             del G.vs[attr]
         except BaseException as e:
-            print(f'Error {e} of type {type(e)} was ignored.')
+            print(f"Error {e} of type {type(e)} was ignored.")
     return G
 
 
@@ -604,7 +608,7 @@ def compare_tiers_plot(
     rho_label: str = "Percent " + get_plural(failure_scale) + " remaining"
     ax = sns.lineplot(
         x=rho_label,
-        y='Avg. percent end suppliers reachable',
+        y="Avg. percent end suppliers reachable",
         data=res,
         hue="Tier count",
         errorbar=("pi", 95),
@@ -820,7 +824,7 @@ if __name__ == "__main__":
         n_cpus: int | None = os.cpu_count()
         assert n_cpus is not None
 
-        client: dist.Client = dist.Client(n_workers = n_cpus - 2)
+        client: dist.Client = dist.Client(n_workers=n_cpus - 2)
 
     print("Beginning analysis")
 
