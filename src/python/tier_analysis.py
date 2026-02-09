@@ -123,7 +123,8 @@ def get_terminal_nodes(node: ig.Vertex | int, G: ig.Graph) -> set[str]:
 
     terminal_components: ig.VertexSeq = sccs.cluster_graph().vs(_indegree_eq=0)
     sccs = list(sccs)
-    terminal_nodes = [sccs[node.index] for node in terminal_components]
+    # HACK: Types being weird
+    terminal_nodes: Any = [sccs[node.index] for node in terminal_components]
     terminal_nodes = {
         reachable_graph.vs[node]["name"] for node in itertools.chain(*terminal_nodes)
     }
@@ -180,6 +181,8 @@ def get_plural(
 def some_terminal_suppliers_reachable(
     i, G: ig.Graph, G_thin: ig.Graph, t=None, u=None
 ) -> bool:
+    """Some end suppliers reachable"""
+
     if t is None:
         t = get_terminal_nodes(i, G)
     if u is None:
@@ -190,23 +193,17 @@ def some_terminal_suppliers_reachable(
     return False
 
 
-some_terminal_suppliers_reachable.description = "Some end suppliers reachable"
-
-
 def percent_terminal_suppliers_reachable(
     i: ig.Vertex | int, G: ig.Graph, G_thin: ig.Graph, t: set[str] | None = None, u: set[str] | None = None
 ) -> float:
+    """Avg. percent end suppliers reachable"""
+
     if t is None:
         t = get_terminal_nodes(i, G)
     if u is None:
         u = get_upstream(i, G, G_thin)
 
     return len(t.intersection(u)) / len(t)
-
-
-percent_terminal_suppliers_reachable.description = (
-    "Avg. percent end suppliers reachable"
-)
 
 
 callbacks = [some_terminal_suppliers_reachable, percent_terminal_suppliers_reachable]
