@@ -6,7 +6,7 @@ import os
 import random
 import sys
 from copy import deepcopy
-from typing import Any, Literal
+from typing import Any, Callable, Literal
 
 import dask.distributed as dist
 import igraph as ig
@@ -75,7 +75,7 @@ def get_demand_nodes(G: ig.Graph) -> list[ig.Vertex]:
     return list({x.target_vertex for x in G.es(Tier=1)})
 
 
-def igraph_simple(edge_df) -> ig.Graph:
+def igraph_simple(edge_df: pd.DataFrame) -> ig.Graph:
 
     firm_list: pd.DataFrame = pd.concat((edge_df["Source"], edge_df["Target"])).unique()
     G: ig.Graph = ig.Graph(directed=True)
@@ -100,7 +100,7 @@ def get_node_tier_from_edge_tier(G: ig.Graph) -> None:
             node["Tier"] = 0
 
 
-def get_reachable_nodes(node, G: ig.Graph) -> set[int]:
+def get_reachable_nodes(node: ig.Vertex | int, G: ig.Graph) -> set[int]:
     if isinstance(node, ig.Vertex):
         node = node.index
 
@@ -111,16 +111,16 @@ def get_reachable_nodes(node, G: ig.Graph) -> set[int]:
     return {G.vs["name"][i] for i in u}
 
 
-def get_terminal_nodes(node, G: ig.Graph):
+def get_terminal_nodes(node: ig.Vertex | int, G: ig.Graph) -> set[str]:
     if isinstance(node, ig.Vertex):
         node = node.index
 
-    reachable_nodes = get_reachable_nodes(node, G)
-    reachable_graph = G.induced_subgraph(reachable_nodes)
+    reachable_nodes: set[int] = get_reachable_nodes(node, G)
+    reachable_graph: ig.Graph = G.induced_subgraph(reachable_nodes)
 
-    sccs = reachable_graph.connected_components()
+    sccs: ig.VertexClustering = reachable_graph.connected_components()
 
-    terminal_components = sccs.cluster_graph().vs(_indegree_eq=0)
+    terminal_components: ig.VertexSeq = sccs.cluster_graph().vs(_indegree_eq=0)
     sccs = list(sccs)
     terminal_nodes = [sccs[node.index] for node in terminal_components]
     terminal_nodes = {
@@ -130,7 +130,7 @@ def get_terminal_nodes(node, G: ig.Graph):
 
 
 def get_upstream(
-    i_thick,
+    i_thick: ig.Vertex | int,
     G_thick: ig.Graph,
     G_thin: ig.Graph,
     demand_nodes_thin=None,
@@ -190,11 +190,10 @@ def some_terminal_suppliers_reachable(
 
 
 some_terminal_suppliers_reachable.description = "Some end suppliers reachable"
-some_terminal_suppliers_reachable.type = bool
 
 
 def percent_terminal_suppliers_reachable(
-    i, G: ig.Graph, G_thin: ig.Graph, t=None, u=None
+    i: ig.Vertex | int, G: ig.Graph, G_thin: ig.Graph, t: set[str] | None = None, u: set[str] | None = None
 ) -> float:
     if t is None:
         t = get_terminal_nodes(i, G)
@@ -207,7 +206,6 @@ def percent_terminal_suppliers_reachable(
 percent_terminal_suppliers_reachable.description = (
     "Avg. percent end suppliers reachable"
 )
-percent_terminal_suppliers_reachable.type = float
 
 
 callbacks = [some_terminal_suppliers_reachable, percent_terminal_suppliers_reachable]
