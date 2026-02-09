@@ -6,11 +6,12 @@ import os
 import random
 import sys
 from copy import deepcopy
-from typing import Any, Callable, Literal
+from typing import Any, Callable, Literal, cast
 
 import dask.distributed as dist
 import igraph as ig
 import matplotlib.pyplot as plt
+import matplotlib.axes as mpl_axes
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
@@ -227,7 +228,7 @@ def impute_industry(G: ig.Graph) -> None:
 
 def reverse(G: ig.Graph) -> None:
     Tier = dict(Tier=G.es["Tier"])
-    edges = [tuple(reversed(e.tuple)) for e in G.es]
+    edges: list[tuple[int]] = [tuple(reversed(e.tuple)) for e in G.es]
     G.delete_edges(None)
     G.add_edges(edges, Tier)
     G.reversed = not G.reversed
@@ -332,7 +333,8 @@ def get_pagerank_attack(G: ig.Graph, transpose: bool = True, protected_countries
     attrname = "Pagerank of transpose" if transpose else "Pagerank"
     try:
         G[attrname]
-    except BaseException:
+    except BaseException as e:
+        print(f'Error {e} of type {type(e)} was ignored')
         if transpose:
             reverse(G)
             pr = G.pagerank()
@@ -358,13 +360,13 @@ get_pagerank_attack_no_transpose.description = "Pagerank"
 
 def failure_plot(
     avgs,
-    plot_title="Supply chain resilience under firm failures",
-    save_only=False,
-    filename=None,
-):
+    plot_title: str="Supply chain resilience under firm failures",
+    save_only: bool=False,
+    filename: str | None=None,
+) -> None:
 
     rho = avgs.columns[0]
-    ax = []
+    ax: list[mpl_axes.Axes] = []
     ax = [
         sns.lineplot(x=rho, y=col, label=col, data=avgs, errorbar=("pi", 95))
         for col in avgs.columns
@@ -379,12 +381,12 @@ def failure_plot(
 def failure_reachability_single(
     r,
     G: ig.Graph,
-    demand_nodes=None,
-    ts=None,
+    demand_nodes: list[ig.Vertex] | None=None,
+    ts: list[set[str]] | None=None,
     failure_scale="firm",
     callbacks=callbacks,
     targeted=None,
-):
+) -> dict:
 
     if demand_nodes is None:
         demand_nodes = get_demand_nodes(G)
@@ -401,7 +403,7 @@ def failure_reachability_single(
     }
 
     res = dict()
-    us = [get_upstream(i, G, G_thin, demand_nodes_thin) for i in demand_nodes]
+    us: list[set[str]] = [get_upstream(i, G, G_thin, demand_nodes_thin) for i in demand_nodes]
     for cb in callbacks:
         sample = [
             cb(demand_nodes, G, G_thin, t, u) for i, t, u in zip(demand_nodes, ts, us)
@@ -415,8 +417,8 @@ def failure_reachability_single(
 def failure_reachability_sweep(
     G: ig.Graph,
     rho: npt.NDArray[np.float64] = np.linspace(0.3, 1, 71),
-    demand_nodes=None,
-    ts=None,
+    demand_nodes: list[int] | None=None,
+    ts: list[set[str]] | None=None,
     failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
     callbacks=callbacks,
     targeted_factory=random_thinning_factory,
@@ -433,7 +435,8 @@ def failure_reachability_sweep(
     if ts is None:
         ts = [set(get_terminal_nodes(i, G)) for i in demand_nodes]
 
-    avgs = []
+    # HACK: We temporarily force the typing to cooperate with our weirdness
+    avgs: Any = []
     if parallel == "rho" or parallel == "all":
         client = dist.get_client()
         avgs = client.map(
@@ -474,7 +477,7 @@ def failure_reachability_sweep(
 
     avgs = [pd.DataFrame(a, index=[0]) for a in avgs]
     avgs = pd.concat(avgs, ignore_index=True)
-    rho_name = "Percent " + get_plural(failure_scale) + " remaining"
+    rho_name: str = "Percent " + get_plural(failure_scale) + " remaining"
     avgs[rho_name] = rho
     cols = list(avgs.columns)
     avgs = avgs[cols[-1:] + cols[:-1]]
@@ -494,7 +497,7 @@ def failure_reachability(
     callbacks=callbacks,
     G_has_no_software_flag=None,
     prefix="",
-    demand_nodes=None,
+    demand_nodes: list[int | None]=None,
 ):
 
     global start_time
@@ -509,7 +512,7 @@ def failure_reachability(
     if demand_nodes is None:
         demand_nodes = [i.index for i in get_demand_nodes(G)]
 
-    t = [get_terminal_nodes(i, G) for i in demand_nodes]
+    t: list[set[str]] = [get_terminal_nodes(i, G) for i in demand_nodes]
 
     args = [
         [G, rho, demand_nodes, t, failure_scale, callbacks, targeted_factory]
@@ -517,7 +520,7 @@ def failure_reachability(
 
     if parallel == "repeat" or parallel == "all":
         print("Doing parallel map now.")
-        client = dist.get_client()
+        client: dist.Client = dist.get_client()
 
         def wrapper_function(x):
             return failure_reachability_sweep(
@@ -537,7 +540,8 @@ def failure_reachability(
         avgs = [failure_reachability_sweep(*args[0], parallel="rho")]
     else:
         avgs = [failure_reachability_sweep(*args[0]) for _ in range(repeats)]
-    avgs = pd.concat(avgs, ignore_index=True)
+    # HACK: Avoid the consequences of our weird types for now
+    avgs = pd.concat(cast(list, avgs), ignore_index=True)
 
     if plot:
         plot_title = (
@@ -555,7 +559,7 @@ def failure_reachability(
                 else ""
             )
         )
-        fname = (
+        fname: str = (
             failure_scale
             + "_"
             + targeted_factory.description.replace(" ", "_").lower()
@@ -598,8 +602,8 @@ def reduce_tiers(G: ig.Graph, tiers: int) -> ig.Graph:
     ]:
         try:
             del G.vs[attr]
-        except BaseException:
-            pass
+        except BaseException as e:
+            print(f'Error {e} of type {type(e)} was ignored.')
     return G
 
 
