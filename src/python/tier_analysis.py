@@ -833,12 +833,10 @@ if __name__ == "__main__":
         config["parallel"]["tiers_parallel_mode"]
         or config["parallel"]["thresholds_parallel"]
     ):
-        if os.name == "posix":
-            n_cpus = len(os.sched_getaffinity(0))
-        elif os.name == "nt":
-            n_cpus = os.cpu_count()
-        n: int = n_cpus - 2
-        client: dist.Client = dist.Client(n_workers=n)
+        n_cpus: int | None = os.cpu_count()
+        assert n_cpus is not None
+
+        client: dist.Client = dist.Client(n_workers = n_cpus - 2)
 
     print("Beginning analysis")
 
@@ -864,7 +862,8 @@ if __name__ == "__main__":
 
         print("Comparing tiers")
 
-        res = compare_tiers(
+        # HACK: More weird typing
+        res: Any = compare_tiers(
             G, parallel=config["parallel"]["tiers_parallel_mode"], attack=factory
         )
         dists: pd.DataFrame = between_tier_distances(res)
