@@ -294,8 +294,6 @@ def random_thinning_factory(G: ig.Graph):
     return attack
 
 
-random_thinning_factory.description = "Random"
-
 
 def get_employee_attack(G: ig.Graph, protected_countries=[]):
     try:
@@ -314,15 +312,10 @@ def get_employee_attack(G: ig.Graph, protected_countries=[]):
     return target_by_attribute(G, "Employees", protected_countries=protected_countries)
 
 
-get_employee_attack.description = "Employees"
-
 
 def get_degree_attack(G: ig.Graph):
     G.vs["degree"] = G.degree(range(G.vcount()))
     return target_by_attribute(G, "degree")
-
-
-get_degree_attack.description = "Degree"
 
 
 def get_pagerank_attack(G: ig.Graph, transpose: bool = True, protected_countries=[]):
@@ -343,16 +336,10 @@ def get_pagerank_attack(G: ig.Graph, transpose: bool = True, protected_countries
     return target_by_attribute(G, attrname, protected_countries=protected_countries)
 
 
-get_pagerank_attack.description = "Pagerank of transpose"
-
-
 def get_pagerank_attack_no_transpose(G: ig.Graph, protected_countries=[]):
     return get_pagerank_attack(
         G, transpose=False, protected_countries=protected_countries
     )
-
-
-get_pagerank_attack_no_transpose.description = "Pagerank"
 
 
 def failure_plot(
@@ -617,7 +604,7 @@ def compare_tiers_plot(
     rho_label: str = "Percent " + get_plural(failure_scale) + " remaining"
     ax = sns.lineplot(
         x=rho_label,
-        y=percent_terminal_suppliers_reachable.description,
+        y='Avg. percent end suppliers reachable',
         data=res,
         hue="Tier count",
         errorbar=("pi", 95),
