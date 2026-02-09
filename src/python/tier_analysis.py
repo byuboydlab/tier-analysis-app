@@ -884,7 +884,7 @@ if __name__ == "__main__":
                 get_reachable_nodes(node, G)
             )
 
-        reachability_counts: pd.DataFrame = reachability_counts[
+        reachability_counts = reachability_counts[
             reachability_counts["counts"]
             >= config["breakdown_thresholds"]["reachable_node_threshold"]
         ]  # cutoff to exclude nodes with few reachable nodes
