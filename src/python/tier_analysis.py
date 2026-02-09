@@ -140,7 +140,6 @@ def get_upstream(
         i_thick = i_thick.index
 
     try:
-        # i_thin = demand_nodes_thin[i_thick] if demand_nodes_thin else G_thin.vs.find(name=i_thick).index
         if demand_nodes_thin:
             i_thin = demand_nodes_thin[i_thick]
         else:
