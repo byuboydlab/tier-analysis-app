@@ -613,7 +613,7 @@ def compare_tiers_plot(
     failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
     attack=random_thinning_factory,
     save: bool = True,
-):
+) -> None:
 
     global start_time
 
@@ -658,7 +658,7 @@ def compare_tiers(
     failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
     tier_range=range(1, config["general"]["max_tiers"] + 1),
     parallel="auto",
-):
+) -> pd.DataFrame:
     """
     This function is used to compare the effect of different tier counts on the
     reachability of terminal suppliers.
@@ -691,7 +691,7 @@ def compare_tiers(
         res = pd.concat([res, res_tier], ignore_index=True)
 
     # Save the results
-    fname = (
+    fname: str = (
         "compare_tiers_"
         + failure_scale
         + "_"
@@ -767,7 +767,7 @@ def between_tier_distances(
 
 
 def get_node_breakdown_threshold(
-    node,
+    node: ig.Vertex | int,
     G: ig.Graph,
     breakdown_threshold=config["breakdown_thresholds"]["breakdown_threshold"],
     thinning_ratio=config["breakdown_thresholds"]["thinning_ratio"],
