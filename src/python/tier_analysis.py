@@ -494,7 +494,7 @@ def failure_reachability(
     callbacks=callbacks,
     G_has_no_software_flag=None,
     prefix="",
-    demand_nodes: list[int | None]=None,
+    demand_nodes: list[int] | None=None,
 ):
 
     global start_time
