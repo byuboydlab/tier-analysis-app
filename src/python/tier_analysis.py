@@ -18,6 +18,8 @@ import pandas as pd
 import seaborn as sns
 import tomllib
 
+type FailureScale = Literal["firm", "country", "industry", "country-industry"]
+
 multiprocessing.freeze_support()
 
 # TODO: this is already called in __main__, but cannot be removed until some function calls are moved to __main__
@@ -162,7 +164,7 @@ def get_upstream(
 
 
 def get_plural(
-    x: Literal["firm", "country", "industry", "country-industry"],
+    x: FailureScale,
 ) -> Literal["firms", "countries", "industries", "country-industries"]:
     if x == "firm":
         return "firms"
@@ -383,7 +385,7 @@ def failure_reachability_single(
     G: ig.Graph,
     demand_nodes: list[ig.Vertex] | None = None,
     ts: list[set[str]] | None = None,
-    failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
+    failure_scale: FailureScale = "firm",
     callbacks=callbacks,
     targeted=None,
 ) -> dict:
@@ -421,7 +423,7 @@ def failure_reachability_sweep(
     rho: npt.NDArray[np.float64] = np.linspace(0.3, 1, 71),
     demand_nodes: list[int] | None = None,
     ts: list[set[str]] | None = None,
-    failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
+    failure_scale: FailureScale = "firm",
     callbacks=callbacks,
     targeted_factory=random_thinning_factory,
     parallel=None,
@@ -493,7 +495,7 @@ def failure_reachability(
     plot: bool = True,
     save_only: bool = False,
     repeats: int = 1,
-    failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
+    failure_scale: FailureScale = "firm",
     targeted_factory=random_thinning_factory,
     parallel="auto",
     callbacks=callbacks,
@@ -612,7 +614,7 @@ def reduce_tiers(G: ig.Graph, tiers: int) -> ig.Graph:
 def compare_tiers_plot(
     res,
     rho: npt.NDArray[np.float64] = np.linspace(0.3, 1, 71),
-    failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
+    failure_scale: FailureScale = "firm",
     attack=random_thinning_factory,
     save: bool = True,
 ) -> None:
@@ -657,7 +659,7 @@ def compare_tiers(
     plot: bool = True,
     save: bool = True,
     attack=random_thinning_factory,
-    failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
+    failure_scale: FailureScale = "firm",
     tier_range: range = range(1, config["general"]["max_tiers"] + 1),
     parallel="auto",
 ) -> pd.DataFrame:
@@ -720,7 +722,7 @@ def between_tier_distances(
     res,
     col_name="Percent firms remaining",
     attack=random_thinning_factory,
-    failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
+    failure_scale: FailureScale = "firm",
 ) -> pd.DataFrame:
     """
     Computes the uniform distance between the mean of each tier and the mean of the final tier.
