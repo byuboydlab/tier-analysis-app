@@ -21,6 +21,8 @@ import tomllib
 
 type FailureScale = Literal["firm", "country", "industry", "country-industry"]
 type ParallelMode = Literal["auto", "repeat", "rho", "all", "none"]
+type Attack = Callable[[float, FailureScale], ig.Graph]
+type AttackFactory = Callable[..., Attack]
 
 multiprocessing.freeze_support()
 
@@ -260,12 +262,14 @@ def get_sorted_attr_inds(G: ig.Graph, attr: str) -> dict[str, list[int]]:
     return sorted_attr_inds
 
 
-def target_by_attribute(G: ig.Graph, attr: str, protected_countries=[]):
+def target_by_attribute(
+    G: ig.Graph, attr: str, protected_countries: list[str] = []
+) -> Attack:
 
     sorted_attr_inds: dict[str, list[int]] = get_sorted_attr_inds(G, attr)
 
     def targeted(
-        r,
+        r: float,
         failure_scale: FailureScale = "firm",
     ) -> ig.Graph:
         to_keep: list[int] = sorted_attr_inds[failure_scale][
@@ -318,7 +322,9 @@ def random_thinning_factory(G: ig.Graph) -> Callable[[float, FailureScale], ig.G
     return attack
 
 
-def get_employee_attack(G: ig.Graph, protected_countries=[]):
+def get_employee_attack(
+    G: ig.Graph, protected_countries: list[str] = []
+) -> Attack:
     try:
         G.vs["Employees_imputed"]
     except BaseException as e:
@@ -336,12 +342,14 @@ def get_employee_attack(G: ig.Graph, protected_countries=[]):
     return target_by_attribute(G, "Employees", protected_countries=protected_countries)
 
 
-def get_degree_attack(G: ig.Graph):
+def get_degree_attack(G: ig.Graph) -> Attack:
     G.vs["degree"] = G.degree(range(G.vcount()))
     return target_by_attribute(G, "degree")
 
 
-def get_pagerank_attack(G: ig.Graph, transpose: bool = True, protected_countries=[]):
+def get_pagerank_attack(
+    G: ig.Graph, transpose: bool = True, protected_countries: list[str] = []
+) -> Attack:
 
     attrname: Literal["Pagerank of transpose", "Pagerank"] = (
         "Pagerank of transpose" if transpose else "Pagerank"
@@ -361,7 +369,9 @@ def get_pagerank_attack(G: ig.Graph, transpose: bool = True, protected_countries
     return target_by_attribute(G, attrname, protected_countries=protected_countries)
 
 
-def get_pagerank_attack_no_transpose(G: ig.Graph, protected_countries=[]):
+def get_pagerank_attack_no_transpose(
+    G: ig.Graph, protected_countries: list[str] = []
+) -> Attack:
     return get_pagerank_attack(
         G, transpose=False, protected_countries=protected_countries
     )
@@ -394,7 +404,7 @@ def failure_reachability_single(
     ts: Optional[list[set[str]]] = None,
     failure_scale: FailureScale = "firm",
     callbacks: list[Callable] = callbacks,
-    targeted: Optional[Callable[..., ig.Graph]] = None,
+    targeted: Optional[Attack] = None,
 ) -> dict:
 
     if demand_nodes is None:
@@ -433,9 +443,7 @@ def failure_reachability_sweep(
     ts: Optional[list[set[str]]] = None,
     failure_scale: FailureScale = "firm",
     callbacks=callbacks,
-    targeted_factory: Callable[
-        [ig.Graph], Callable[..., ig.Graph]
-    ] = random_thinning_factory,
+    targeted_factory: AttackFactory = random_thinning_factory,
     parallel: ParallelMode = "auto",
 ) -> pd.DataFrame:
     # global failure_reachability_sweep
@@ -507,9 +515,7 @@ def failure_reachability(
     save_only: bool = False,
     repeats: int = 1,
     failure_scale: FailureScale = "firm",
-    targeted_factory: Callable[
-        [ig.Graph], Callable[..., ig.Graph]
-    ] = random_thinning_factory,
+    targeted_factory: AttackFactory = random_thinning_factory,
     parallel: ParallelMode = "auto",
     callbacks=callbacks,
     G_has_no_software_flag: Optional[bool] = None,
@@ -629,7 +635,7 @@ def compare_tiers_plot(
     res: pd.DataFrame,
     rho: npt.NDArray[np.float64] = np.linspace(0.3, 1, 71),
     failure_scale: FailureScale = "firm",
-    attack: Callable[[ig.Graph], Callable[..., ig.Graph]] = random_thinning_factory,
+    attack: AttackFactory = random_thinning_factory,
     save: bool = True,
 ) -> None:
 
@@ -674,7 +680,7 @@ def compare_tiers(
     repeats: int = 24,
     plot: bool = True,
     save: bool = True,
-    attack: Callable[[ig.Graph], Callable[..., ig.Graph]] = random_thinning_factory,
+    attack: AttackFactory = random_thinning_factory,
     failure_scale: FailureScale = "firm",
     tier_range: range = range(1, config["general"]["max_tiers"] + 1),
     parallel: ParallelMode = "auto",
@@ -738,7 +744,7 @@ def uniform_distance(v1, v2):
 def between_tier_distances(
     res,
     col_name="Percent firms remaining",
-    attack: Callable[[ig.Graph], Callable[..., ig.Graph]] = random_thinning_factory,
+    attack: AttackFactory = random_thinning_factory,
     failure_scale: FailureScale = "firm",
 ) -> pd.DataFrame:
     """
