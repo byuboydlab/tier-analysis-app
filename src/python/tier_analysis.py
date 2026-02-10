@@ -20,6 +20,7 @@ import seaborn as sns
 import tomllib
 
 type FailureScale = Literal["firm", "country", "industry", "country-industry"]
+type ParallelMode = Literal["auto", "repeat", "rho", "all", "none"]
 
 multiprocessing.freeze_support()
 
@@ -432,8 +433,10 @@ def failure_reachability_sweep(
     ts: Optional[list[set[str]]] = None,
     failure_scale: FailureScale = "firm",
     callbacks=callbacks,
-    targeted_factory=random_thinning_factory,
-    parallel=None,
+    targeted_factory: Callable[
+        [ig.Graph], Callable[..., ig.Graph]
+    ] = random_thinning_factory,
+    parallel: ParallelMode = "auto",
 ) -> pd.DataFrame:
     # global failure_reachability_sweep
 
@@ -504,13 +507,14 @@ def failure_reachability(
     save_only: bool = False,
     repeats: int = 1,
     failure_scale: FailureScale = "firm",
-    targeted_factory=random_thinning_factory,
-    parallel="auto",
+    targeted_factory: Callable[
+        [ig.Graph], Callable[..., ig.Graph]
+    ] = random_thinning_factory,
+    parallel: ParallelMode = "auto",
     callbacks=callbacks,
-    G_has_no_software_flag=None,
-    prefix="",
+    G_has_no_software_flag: Optional[bool] = None,
     demand_nodes: Optional[list[int]] = None,
-):
+) -> pd.DataFrame:
 
     global start_time
 
@@ -534,7 +538,7 @@ def failure_reachability(
         print("Doing parallel map now.")
         client: dist.Client = dist.get_client()
 
-        def wrapper_function(x):
+        def wrapper_function(x) -> pd.DataFrame:
             return failure_reachability_sweep(
                 G=G,
                 rho=rho,
@@ -546,15 +550,18 @@ def failure_reachability(
                 parallel=parallel,
             )
 
-        avgs = client.map(wrapper_function, range(repeats))
-        avgs = client.gather(avgs)
+        avgs_futures: list[dist.Future[pd.DataFrame]] = client.map(
+            wrapper_function, range(repeats)
+        )
+        avgs: list[pd.DataFrame] = client.gather(avgs_futures)
     elif parallel == "rho":
         avgs = [failure_reachability_sweep(*args[0], parallel="rho")]
     else:
         avgs = [failure_reachability_sweep(*args[0]) for _ in range(repeats)]
-    avgs = pd.concat(avgs, ignore_index=True)
+    avgs_df: pd.DataFrame = pd.concat(avgs, ignore_index=True)
 
     if plot:
+        assert targeted_factory.__doc__ is not None
         plot_title = (
             targeted_factory.__doc__.capitalize()
             + " "
@@ -590,13 +597,13 @@ def failure_reachability(
             + start_time
         )
         failure_plot(
-            avgs[avgs.columns[:-2]],
+            avgs_df[avgs_df.columns[:-2]],
             plot_title=plot_title,
             save_only=save_only,
             filename=results_dir + filename + ".svg",
         )
 
-    return avgs
+    return avgs_df
 
 
 def reduce_tiers(G: ig.Graph, tiers: int) -> ig.Graph:
@@ -619,10 +626,10 @@ def reduce_tiers(G: ig.Graph, tiers: int) -> ig.Graph:
 
 
 def compare_tiers_plot(
-    res,
+    res: pd.DataFrame,
     rho: npt.NDArray[np.float64] = np.linspace(0.3, 1, 71),
     failure_scale: FailureScale = "firm",
-    attack=random_thinning_factory,
+    attack: Callable[[ig.Graph], Callable[..., ig.Graph]] = random_thinning_factory,
     save: bool = True,
 ) -> None:
 
@@ -637,6 +644,8 @@ def compare_tiers_plot(
         errorbar=("pi", 95),
         legend="full",
     )
+
+    assert attack.__doc__ is not None
     ax.set(title=attack.__doc__.capitalize() + " failures")
     if save:
         filename = (
@@ -665,10 +674,10 @@ def compare_tiers(
     repeats: int = 24,
     plot: bool = True,
     save: bool = True,
-    attack=random_thinning_factory,
+    attack: Callable[[ig.Graph], Callable[..., ig.Graph]] = random_thinning_factory,
     failure_scale: FailureScale = "firm",
     tier_range: range = range(1, config["general"]["max_tiers"] + 1),
-    parallel="auto",
+    parallel: ParallelMode = "auto",
 ) -> pd.DataFrame:
     """
     This function is used to compare the effect of different tier counts on the
@@ -702,6 +711,7 @@ def compare_tiers(
         res = pd.concat([res, res_tier], ignore_index=True)
 
     # Save the results
+    assert attack.__doc__ is not None
     filename: str = (
         "compare_tiers_"
         + failure_scale
@@ -728,7 +738,7 @@ def uniform_distance(v1, v2):
 def between_tier_distances(
     res,
     col_name="Percent firms remaining",
-    attack=random_thinning_factory,
+    attack: Callable[[ig.Graph], Callable[..., ig.Graph]] = random_thinning_factory,
     failure_scale: FailureScale = "firm",
 ) -> pd.DataFrame:
     """
@@ -761,6 +771,7 @@ def between_tier_distances(
         list(distances.items()), columns=["Tier count", "Distance"]
     )
 
+    assert attack.__doc__ is not None
     filename: str = (
         "between_tier_distances_"
         + failure_scale
@@ -841,7 +852,7 @@ if __name__ == "__main__":
         os.mkdir(results_dir)
 
     if (
-        config["parallel"]["tiers_parallel_mode"]
+        config["parallel"]["tiers_parallel_mode"] != "none"
         or config["parallel"]["thresholds_parallel"]
     ):
         n_cpus: int | None = os.cpu_count()
