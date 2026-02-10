@@ -177,7 +177,11 @@ def get_plural(
 
 
 def some_terminal_suppliers_reachable(
-    i, G: ig.Graph, G_thin: ig.Graph, t: set[str] | None=None, u: set[str] | None=None
+    i,
+    G: ig.Graph,
+    G_thin: ig.Graph,
+    t: set[str] | None = None,
+    u: set[str] | None = None,
 ) -> bool:
     """Some end suppliers reachable"""
 
