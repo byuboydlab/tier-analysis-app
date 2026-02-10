@@ -217,7 +217,8 @@ def percent_terminal_suppliers_reachable(
 
 callbacks: list[
     Callable[
-        [ig.Vertex | int, ig.Graph, ig.Graph, Optional[set[str]], Optional[set[str]]], Any
+        [ig.Vertex | int, ig.Graph, ig.Graph, Optional[set[str]], Optional[set[str]]],
+        Any,
     ]
 ] = [some_terminal_suppliers_reachable, percent_terminal_suppliers_reachable]
 
@@ -225,7 +226,9 @@ callbacks: list[
 def impute_industry(G: ig.Graph) -> None:
     try:
         G["industry_imputed"]
-    except BaseException:
+    except BaseException as e:
+        # DEBUG
+        print(f"Error {e} of type {type(e)} was ignored in impute_industry")
         G.vs["industry_imputed"] = [x == "nan" for x in G.vs["industry"]]
 
     industry_dist = np.array([x["industry"] for x in G.vs if not x["industry_imputed"]])
@@ -317,7 +320,8 @@ def get_employee_attack(G: ig.Graph, protected_countries=[]):
     try:
         G.vs["Employees_imputed"]
     except BaseException as e:
-        print(f"Error {e} of type {type(e)} was ignored.")
+        # DEBUG
+        print(f"Error {e} of type {type(e)} was ignored in get_employee_attack")
         G.vs["Employees_imputed"] = [math.isnan(x) for x in G.vs["Employees"]]
     size_dist_private = np.array(
         [x["Employees"] for x in G.vs if not x["Employees_imputed"]]
