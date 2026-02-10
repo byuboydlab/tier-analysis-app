@@ -717,7 +717,7 @@ def between_tier_distances(
 
     Parameters:
     - res: DataFrame containing the results.
-    - rho: The column name for 'Percent <scale> remaining'.
+    - col_name: The column name for 'Percent <scale> remaining'.
 
     Returns:
     - DataFrame with two columns: 'Tier count' and 'Distance'.
