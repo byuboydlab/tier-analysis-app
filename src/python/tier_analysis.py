@@ -21,12 +21,12 @@ import tomllib
 multiprocessing.freeze_support()
 
 # TODO: this is already called in __main__, but cannot be removed until some function calls are moved to __main__
-if len(sys.argv) != 4:
+if len(sys.argv) != 3:
     raise RuntimeError(
-        f"tier_analysis.py expects three arguments; {len(sys.argv) - 1} were found"
+        f"tier_analysis.py expects 2 arguments; {len(sys.argv) - 1} were found"
     )
 
-with open(sys.argv[2], "rb") as config_file:
+with open("config.toml", "rb") as config_file:
     config: dict[str, Any] = tomllib.load(config_file)
 
 
@@ -177,7 +177,7 @@ def get_plural(
 
 
 def some_terminal_suppliers_reachable(
-    i, G: ig.Graph, G_thin: ig.Graph, t=None, u=None
+    i, G: ig.Graph, G_thin: ig.Graph, t: set[str] | None=None, u: set[str] | None=None
 ) -> bool:
     """Some end suppliers reachable"""
 
@@ -266,12 +266,14 @@ def target_by_attribute(G: ig.Graph, attr: str, protected_countries=[]):
                 )
             )
 
-    targeted.description = attr
+    targeted.__doc__ = attr
 
     return targeted
 
 
 def random_thinning_factory(G: ig.Graph):
+    """Random"""
+
     firm_rands: npt.NDArray[np.float64] = np.random.random(G.vcount())
 
     uniques = dict()
@@ -283,6 +285,8 @@ def random_thinning_factory(G: ig.Graph):
             random.shuffle(perm[failure_scale])
 
     def attack(rho, failure_scale="firm") -> ig.Graph:
+        """Random"""
+
         if failure_scale == "firm":
             return G.induced_subgraph((firm_rands <= rho).nonzero()[0].tolist())
         else:
@@ -290,8 +294,6 @@ def random_thinning_factory(G: ig.Graph):
                 : round(rho * len(uniques[failure_scale]))
             ]
             return G.induced_subgraph(G.vs(lambda x: x[failure_scale] in keep_uniques))
-
-    attack.description = "Random"
 
     return attack
 
@@ -394,9 +396,9 @@ def failure_reachability_single(
         sample = [
             cb(demand_nodes, G, G_thin, t, u) for i, t, u in zip(demand_nodes, ts, us)
         ]
-        res[cb.description] = np.mean(sample)
+        res[cb.__doc__] = np.mean(sample)
     res["Failure scale"] = failure_scale
-    res["Attack type"] = targeted.description
+    res["Attack type"] = targeted.__doc__
     return res
 
 
@@ -502,7 +504,7 @@ def failure_reachability(
 
     args = [
         [G, rho, demand_nodes, t, failure_scale, callbacks, targeted_factory]
-    ] * repeats  # Beware here that the copy here is very shallow
+    ]  # Beware here that the copy here is very shallow
 
     if parallel == "repeat" or parallel == "all":
         print("Doing parallel map now.")
@@ -531,7 +533,7 @@ def failure_reachability(
 
     if plot:
         plot_title = (
-            targeted_factory.description.capitalize()
+            targeted_factory.__doc__.capitalize()
             + " "
             + failure_scale
             + " failures"
@@ -548,7 +550,7 @@ def failure_reachability(
         fname: str = (
             failure_scale
             + "_"
-            + targeted_factory.description.replace(" ", "_").lower()
+            + targeted_factory.__doc__.replace(" ", "_").lower()
             + "_range_"
             + str(rho[0])
             + "_"
@@ -588,8 +590,8 @@ def reduce_tiers(G: ig.Graph, tiers: int) -> ig.Graph:
     ]:
         try:
             del G.vs[attr]
-        except BaseException as e:
-            print(f"Error {e} of type {type(e)} was ignored.")
+        except KeyError as e:
+            print(f"Ignoring KeyError {e}")
     return G
 
 
@@ -612,12 +614,12 @@ def compare_tiers_plot(
         errorbar=("pi", 95),
         legend="full",
     )
-    ax.set(title=attack.description.capitalize() + " failures")
+    ax.set(title=attack.__doc__.capitalize() + " failures")
     if save:
         fname = (
             failure_scale
             + "_"
-            + attack.description.replace(" ", "_").lower()
+            + attack.__doc__.replace(" ", "_").lower()
             + "_range_"
             + str(rho[0])
             + "_"
@@ -681,7 +683,7 @@ def compare_tiers(
         "compare_tiers_"
         + failure_scale
         + "_"
-        + attack.description.replace(" ", "_").lower()
+        + attack.__doc__.replace(" ", "_").lower()
         + "_"
         + os.path.basename(sys.argv[1]).replace(".xlsx", "")
         + "_"
@@ -740,7 +742,7 @@ def between_tier_distances(
         "between_tier_distances_"
         + failure_scale
         + "_"
-        + attack.description.replace(" ", "_").lower()
+        + attack.__doc__.replace(" ", "_").lower()
         + "_"
         + os.path.basename(sys.argv[1]).replace(".xlsx", "")
         + "_"
@@ -800,12 +802,12 @@ def get_node_breakdown_threshold(
 if __name__ == "__main__":
     start_time: str = datetime.datetime.now().strftime("%m-%d-%Y_%H-%M-%S")
 
-    if len(sys.argv) != 4:
+    if len(sys.argv) != 3:
         raise IndexError(
-            f"3 arguments were expected, but {len(sys.argv) - 1} were given."
+            f"2 arguments were expected, but {len(sys.argv) - 1} were given."
         )
 
-    results_dir: str = sys.argv[3]
+    results_dir: str = sys.argv[2]
 
     if results_dir[-1] != "/" and os.name == "posix":
         results_dir += "/"
