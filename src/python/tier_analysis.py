@@ -5,13 +5,14 @@ import multiprocessing
 import os
 import random
 import sys
+from collections.abc import Callable
 from copy import deepcopy
-from typing import Any, Callable, Literal, cast
+from typing import Any, Literal, Optional, cast
 
 import dask.distributed as dist
 import igraph as ig
-import matplotlib.pyplot as plt
 import matplotlib.axes as mpl_axes
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.typing as npt
 import pandas as pd
@@ -179,11 +180,11 @@ def get_plural(
 
 
 def some_terminal_suppliers_reachable(
-    i,
+    i: ig.Vertex | int,
     G: ig.Graph,
     G_thin: ig.Graph,
-    t: set[str] | None = None,
-    u: set[str] | None = None,
+    t: Optional[set[str]] = None,
+    u: Optional[set[str]] = None,
 ) -> bool:
     """Some end suppliers reachable"""
 
@@ -201,8 +202,8 @@ def percent_terminal_suppliers_reachable(
     i: ig.Vertex | int,
     G: ig.Graph,
     G_thin: ig.Graph,
-    t: set[str] | None = None,
-    u: set[str] | None = None,
+    t: Optional[set[str]] = None,
+    u: Optional[set[str]] = None,
 ) -> float:
     """Avg. percent end suppliers reachable"""
 
@@ -214,7 +215,11 @@ def percent_terminal_suppliers_reachable(
     return len(t.intersection(u)) / len(t)
 
 
-callbacks = [some_terminal_suppliers_reachable, percent_terminal_suppliers_reachable]
+callbacks: list[
+    Callable[
+        [ig.Vertex | int, ig.Graph, ig.Graph, Optional[set[str]], Optional[set[str]]], Any
+    ]
+] = [some_terminal_suppliers_reachable, percent_terminal_suppliers_reachable]
 
 
 def impute_industry(G: ig.Graph) -> None:
@@ -256,9 +261,7 @@ def target_by_attribute(G: ig.Graph, attr: str, protected_countries=[]):
 
     def targeted(
         r,
-        failure_scale: Literal[
-            "firm", "country", "industry", "country-industry"
-        ] = "firm",
+        failure_scale: FailureScale = "firm",
     ) -> ig.Graph:
         to_keep: list[int] = sorted_attr_inds[failure_scale][
             : int(len(sorted_attr_inds[failure_scale]) * r)
@@ -282,7 +285,7 @@ def target_by_attribute(G: ig.Graph, attr: str, protected_countries=[]):
     return targeted
 
 
-def random_thinning_factory(G: ig.Graph):
+def random_thinning_factory(G: ig.Graph) -> Callable[[float, FailureScale], ig.Graph]:
     """Random"""
 
     firm_rands: npt.NDArray[np.float64] = np.random.random(G.vcount())
@@ -297,9 +300,7 @@ def random_thinning_factory(G: ig.Graph):
 
     def attack(
         r: float,
-        failure_scale: Literal[
-            "firm", "country", "industry", "country-industry"
-        ] = "firm",
+        failure_scale: FailureScale = "firm",
     ) -> ig.Graph:
         """Random"""
 
@@ -364,7 +365,7 @@ def failure_plot(
     avgs,
     plot_title: str = "Supply chain resilience under firm failures",
     save_only: bool = False,
-    filename: str | None = None,
+    filename: Optional[str] = None,
 ) -> None:
 
     rho = avgs.columns[0]
@@ -383,8 +384,8 @@ def failure_plot(
 def failure_reachability_single(
     r: float,
     G: ig.Graph,
-    demand_nodes: list[ig.Vertex] | None = None,
-    ts: list[set[str]] | None = None,
+    demand_nodes: Optional[list[ig.Vertex]] = None,
+    ts: Optional[list[set[str]]] = None,
     failure_scale: FailureScale = "firm",
     callbacks=callbacks,
     targeted=None,
@@ -397,7 +398,7 @@ def failure_reachability_single(
     if targeted is None:
         targeted = random_thinning_factory(G)
 
-    G_thin: ig.Graph = targeted(r, failure_scale=failure_scale)
+    G_thin: ig.Graph = targeted(r, failure_scale)
     demand_nodes_thin: dict[str, int] = {
         i_thin["name"]: i_thin.index
         for i_thin in G_thin.vs
@@ -421,8 +422,8 @@ def failure_reachability_single(
 def failure_reachability_sweep(
     G: ig.Graph,
     rho: npt.NDArray[np.float64] = np.linspace(0.3, 1, 71),
-    demand_nodes: list[int] | None = None,
-    ts: list[set[str]] | None = None,
+    demand_nodes: Optional[list[int]] = None,
+    ts: Optional[list[set[str]]] = None,
     failure_scale: FailureScale = "firm",
     callbacks=callbacks,
     targeted_factory=random_thinning_factory,
@@ -501,7 +502,7 @@ def failure_reachability(
     callbacks=callbacks,
     G_has_no_software_flag=None,
     prefix="",
-    demand_nodes: list[int] | None = None,
+    demand_nodes: Optional[list[int]] = None,
 ):
 
     global start_time
