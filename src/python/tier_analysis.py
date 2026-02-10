@@ -93,7 +93,7 @@ def igraph_simple(edge_df: pd.DataFrame) -> ig.Graph:
 
 
 def get_node_tier_from_edge_tier(G: ig.Graph) -> None:
-    """ Iterates through the nodes and assigns each node the minimum tier of the
+    """Iterates through the nodes and assigns each node the minimum tier of the
     edges leaving it"""
     for node in G.vs:
         if len(node.out_edges()) > 0:
@@ -120,7 +120,7 @@ def get_terminal_nodes(node: ig.Vertex | int, G: ig.Graph) -> set[str]:
     reachable_nodes: set[int] = get_reachable_nodes(node, G)
     reachable_graph: ig.Graph = G.induced_subgraph(reachable_nodes)
 
-    # HACK: Types
+    # HACK: Types being weird
     sccs: ig.VertexClustering | list = reachable_graph.connected_components()
 
     terminal_components: ig.VertexSeq = sccs.cluster_graph().vs(_indegree_eq=0)
@@ -392,8 +392,8 @@ def failure_reachability_single(
     demand_nodes: Optional[list[ig.Vertex]] = None,
     ts: Optional[list[set[str]]] = None,
     failure_scale: FailureScale = "firm",
-    callbacks=callbacks,
-    targeted=None,
+    callbacks: list[Callable] = callbacks,
+    targeted: Optional[Callable[..., ig.Graph]] = None,
 ) -> dict:
 
     if demand_nodes is None:
@@ -410,7 +410,8 @@ def failure_reachability_single(
         if i_thin["name"] in demand_nodes
     }
 
-    res = dict()
+    # FIXME
+    res: dict[str, Any] = dict()
     us: list[set[str]] = [
         get_upstream(i, G, G_thin, demand_nodes_thin) for i in demand_nodes
     ]
@@ -418,7 +419,7 @@ def failure_reachability_single(
         sample = [
             cb(demand_nodes, G, G_thin, t, u) for i, t, u in zip(demand_nodes, ts, us)
         ]
-        res[cb.__doc__] = np.mean(sample)
+        res[cast(str, cb.__doc__)] = np.mean(sample)
     res["Failure scale"] = failure_scale
     res["Attack type"] = targeted.__doc__
     return res
@@ -433,7 +434,7 @@ def failure_reachability_sweep(
     callbacks=callbacks,
     targeted_factory=random_thinning_factory,
     parallel=None,
-):
+) -> pd.DataFrame:
     # global failure_reachability_sweep
 
     if failure_scale == "industry":
@@ -445,11 +446,11 @@ def failure_reachability_sweep(
     if ts is None:
         ts = [set(get_terminal_nodes(i, G)) for i in demand_nodes]
 
-    # HACK: We temporarily force the typing to cooperate with our weirdness
-    avgs: Any = []
+    # FIXME
+    avgs: list[dict[Any, Any]] = []
     if parallel == "rho" or parallel == "all":
         client = dist.get_client()
-        avgs = client.map(
+        avgs_futures: list[dist.Future[dict[Any, Any]]] = client.map(
             failure_reachability_single,
             rho,
             *list(
@@ -468,7 +469,7 @@ def failure_reachability_sweep(
                 )
             ),
         )
-        avgs = client.gather(avgs)
+        avgs = client.gather(avgs_futures)
     else:
         targeted = targeted_factory(G)
 
@@ -485,14 +486,15 @@ def failure_reachability_sweep(
                 )
             )
 
-    avgs = [pd.DataFrame(a, index=[0]) for a in avgs]
-    avgs = pd.concat(avgs, ignore_index=True)
+    avgs_df: pd.DataFrame = pd.concat(
+        [pd.DataFrame(a, index=[0]) for a in avgs], ignore_index=True
+    )
     rho_name: str = "Percent " + get_plural(failure_scale) + " remaining"
-    avgs[rho_name] = rho
-    cols = list(avgs.columns)
-    avgs = avgs[cols[-1:] + cols[:-1]]
+    avgs_df[rho_name] = rho
+    cols: list[str] = list(avgs_df.columns)
+    avgs_df = avgs_df[cols[-1:] + cols[:-1]]
 
-    return avgs
+    return avgs_df
 
 
 def failure_reachability(
@@ -550,8 +552,7 @@ def failure_reachability(
         avgs = [failure_reachability_sweep(*args[0], parallel="rho")]
     else:
         avgs = [failure_reachability_sweep(*args[0]) for _ in range(repeats)]
-    # HACK: Avoid the consequences of our weird types for now
-    avgs = pd.concat(cast(list, avgs), ignore_index=True)
+    avgs = pd.concat(avgs, ignore_index=True)
 
     if plot:
         plot_title = (
@@ -872,8 +873,7 @@ if __name__ == "__main__":
 
         print("Comparing tiers")
 
-        # HACK: More weird typing
-        res: Any = compare_tiers(
+        res: pd.DataFrame = compare_tiers(
             G, parallel=config["parallel"]["tiers_parallel_mode"], attack=factory
         )
         dists: pd.DataFrame = between_tier_distances(res)
@@ -909,8 +909,8 @@ if __name__ == "__main__":
 
         if config["parallel"]["thresholds_parallel"]:
 
-            def repeat_breakdown_test(node, repeat_idx):
-                res = get_node_breakdown_threshold(
+            def repeat_breakdown_test(node, repeat_idx) -> int:
+                res: int = get_node_breakdown_threshold(
                     G.vs[node],
                     G,
                     config["breakdown_thresholds"]["breakdown_threshold"],
@@ -925,9 +925,11 @@ if __name__ == "__main__":
                 )
             ]
 
-            res = client.map(repeat_breakdown_test, *zip(*pairs))
+            res_futures: list[dist.Future[int]] = client.map(
+                repeat_breakdown_test, *zip(*pairs)
+            )
 
-            res = client.gather(res)
+            res: list[int] = client.gather(res_futures)
 
             for i, (v_idx, i_idx) in enumerate(pairs):
                 thresholds.loc[G.vs[v_idx]["name"], i_idx] = res[i]
