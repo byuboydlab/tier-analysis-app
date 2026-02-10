@@ -288,15 +288,13 @@ def random_thinning_factory(G: ig.Graph):
             perm[failure_scale] = uniques[failure_scale]
             random.shuffle(perm[failure_scale])
 
-    def attack(rho, failure_scale="firm") -> ig.Graph:
+    def attack(r: float, failure_scale="firm") -> ig.Graph:
         """Random"""
 
         if failure_scale == "firm":
-            return G.induced_subgraph((firm_rands <= rho).nonzero()[0].tolist())
+            return G.induced_subgraph((firm_rands <= r).nonzero()[0].tolist())
         else:
-            keep_uniques = perm[failure_scale][
-                : round(rho * len(uniques[failure_scale]))
-            ]
+            keep_uniques = perm[failure_scale][: round(r * len(uniques[failure_scale]))]
             return G.induced_subgraph(G.vs(lambda x: x[failure_scale] in keep_uniques))
 
     return attack
@@ -326,11 +324,13 @@ def get_degree_attack(G: ig.Graph):
 
 def get_pagerank_attack(G: ig.Graph, transpose: bool = True, protected_countries=[]):
 
-    attrname = "Pagerank of transpose" if transpose else "Pagerank"
+    attrname: Literal["Pagerank of transpose", "Pagerank"] = (
+        "Pagerank of transpose" if transpose else "Pagerank"
+    )
     try:
         G[attrname]
     except BaseException as e:
-        print(f"Error {e} of type {type(e)} was ignored")
+        print(f"Error {e} of type {type(e)} was ignored in get_pagerank_attack")
         if transpose:
             reverse(G)
             pr = G.pagerank()
@@ -369,7 +369,7 @@ def failure_plot(
 
 
 def failure_reachability_single(
-    r,
+    r: float,
     G: ig.Graph,
     demand_nodes: list[ig.Vertex] | None = None,
     ts: list[set[str]] | None = None,
@@ -648,7 +648,7 @@ def compare_tiers(
     save: bool = True,
     attack=random_thinning_factory,
     failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
-    tier_range=range(1, config["general"]["max_tiers"] + 1),
+    tier_range: range = range(1, config["general"]["max_tiers"] + 1),
     parallel="auto",
 ) -> pd.DataFrame:
     """
@@ -708,7 +708,7 @@ def uniform_distance(v1, v2):
 
 def between_tier_distances(
     res,
-    rho="Percent firms remaining",
+    col_name="Percent firms remaining",
     attack=random_thinning_factory,
     failure_scale="firm",
 ) -> pd.DataFrame:
@@ -726,7 +726,7 @@ def between_tier_distances(
 
     means = {
         tier_count: res[res["Tier count"] == tier_count]
-        .groupby(rho)["Avg. percent end suppliers reachable"]
+        .groupby(col_name)["Avg. percent end suppliers reachable"]
         .mean()
         for tier_count in res["Tier count"].unique()
     }
@@ -761,8 +761,8 @@ def between_tier_distances(
 def get_node_breakdown_threshold(
     node: ig.Vertex | int,
     G: ig.Graph,
-    breakdown_threshold=config["breakdown_thresholds"]["breakdown_threshold"],
-    thinning_ratio=config["breakdown_thresholds"]["thinning_ratio"],
+    breakdown_threshold: float = config["breakdown_thresholds"]["breakdown_threshold"],
+    thinning_ratio: float = config["breakdown_thresholds"]["thinning_ratio"],
 ) -> int:
 
     # if node is int, convert to vertex
@@ -770,7 +770,7 @@ def get_node_breakdown_threshold(
         node = G.vs[node]
 
     # get terminal nodes for node
-    terminal_nodes = get_terminal_nodes(node, G)
+    terminal_nodes: set[str] = get_terminal_nodes(node, G)
 
     # repeatedly delete thinning_ratio percent of nodes from G until there is
     # no path from node to at least breakdown_threshold percent of the farther
