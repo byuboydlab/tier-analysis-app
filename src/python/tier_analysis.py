@@ -23,7 +23,7 @@ type FailureScale = Literal["firm", "country", "industry", "country-industry"]
 
 multiprocessing.freeze_support()
 
-# TODO: this is already called in __main__, but cannot be removed until some function calls are moved to __main__
+# TODO: This is already called in __main__, but cannot be removed until some function calls are moved to __main__
 if len(sys.argv) != 3:
     raise RuntimeError(
         f"tier_analysis.py expects 2 arguments; {len(sys.argv) - 1} were found"
@@ -93,8 +93,8 @@ def igraph_simple(edge_df: pd.DataFrame) -> ig.Graph:
 
 
 def get_node_tier_from_edge_tier(G: ig.Graph) -> None:
-    # iterate through the nodes and assign each node the minimum tier of the
-    # edges leaving it
+    """ Iterates through the nodes and assigns each node the minimum tier of the
+    edges leaving it"""
     for node in G.vs:
         if len(node.out_edges()) > 0:
             node["Tier"] = min([e["Tier"] for e in node.out_edges()])
@@ -120,7 +120,8 @@ def get_terminal_nodes(node: ig.Vertex | int, G: ig.Graph) -> set[str]:
     reachable_nodes: set[int] = get_reachable_nodes(node, G)
     reachable_graph: ig.Graph = G.induced_subgraph(reachable_nodes)
 
-    sccs: ig.VertexClustering = reachable_graph.connected_components()
+    # HACK: Types
+    sccs: ig.VertexClustering | list = reachable_graph.connected_components()
 
     terminal_components: ig.VertexSeq = sccs.cluster_graph().vs(_indegree_eq=0)
     sccs = list(sccs)
