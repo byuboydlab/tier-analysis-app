@@ -252,7 +252,12 @@ def target_by_attribute(G: ig.Graph, attr: str, protected_countries=[]):
 
     sorted_attr_inds: dict[str, list[int]] = get_sorted_attr_inds(G, attr)
 
-    def targeted(r, failure_scale="firm") -> ig.Graph:
+    def targeted(
+        r,
+        failure_scale: Literal[
+            "firm", "country", "industry", "country-industry"
+        ] = "firm",
+    ) -> ig.Graph:
         to_keep: list[int] = sorted_attr_inds[failure_scale][
             : int(len(sorted_attr_inds[failure_scale]) * r)
         ]
@@ -288,7 +293,12 @@ def random_thinning_factory(G: ig.Graph):
             perm[failure_scale] = uniques[failure_scale]
             random.shuffle(perm[failure_scale])
 
-    def attack(r: float, failure_scale="firm") -> ig.Graph:
+    def attack(
+        r: float,
+        failure_scale: Literal[
+            "firm", "country", "industry", "country-industry"
+        ] = "firm",
+    ) -> ig.Graph:
         """Random"""
 
         if failure_scale == "firm":
@@ -373,7 +383,7 @@ def failure_reachability_single(
     G: ig.Graph,
     demand_nodes: list[ig.Vertex] | None = None,
     ts: list[set[str]] | None = None,
-    failure_scale="firm",
+    failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
     callbacks=callbacks,
     targeted=None,
 ) -> dict:
@@ -551,7 +561,7 @@ def failure_reachability(
                 else ""
             )
         )
-        fname: str = (
+        filename: str = (
             failure_scale
             + "_"
             + targeted_factory.__doc__.replace(" ", "_").lower()
@@ -574,7 +584,7 @@ def failure_reachability(
             avgs[avgs.columns[:-2]],
             plot_title=plot_title,
             save_only=save_only,
-            filename=results_dir + fname + ".svg",
+            filename=results_dir + filename + ".svg",
         )
 
     return avgs
@@ -620,7 +630,7 @@ def compare_tiers_plot(
     )
     ax.set(title=attack.__doc__.capitalize() + " failures")
     if save:
-        fname = (
+        filename = (
             failure_scale
             + "_"
             + attack.__doc__.replace(" ", "_").lower()
@@ -637,7 +647,7 @@ def compare_tiers_plot(
             + "_"
             + start_time
         )
-        plt.savefig(results_dir + fname + ".svg")
+        plt.savefig(results_dir + filename + ".svg")
 
 
 def compare_tiers(
@@ -683,7 +693,7 @@ def compare_tiers(
         res = pd.concat([res, res_tier], ignore_index=True)
 
     # Save the results
-    fname: str = (
+    filename: str = (
         "compare_tiers_"
         + failure_scale
         + "_"
@@ -693,7 +703,7 @@ def compare_tiers(
         + "_"
         + start_time
     )
-    res.to_excel(results_dir + fname + ".xlsx")
+    res.to_excel(results_dir + filename + ".xlsx")
 
     if plot:
         compare_tiers_plot(res, rho, failure_scale, attack, save)
@@ -710,7 +720,7 @@ def between_tier_distances(
     res,
     col_name="Percent firms remaining",
     attack=random_thinning_factory,
-    failure_scale="firm",
+    failure_scale: Literal["firm", "country", "industry", "country-industry"] = "firm",
 ) -> pd.DataFrame:
     """
     Computes the uniform distance between the mean of each tier and the mean of the final tier.
@@ -742,7 +752,7 @@ def between_tier_distances(
         list(distances.items()), columns=["Tier count", "Distance"]
     )
 
-    fname: str = (
+    filename: str = (
         "between_tier_distances_"
         + failure_scale
         + "_"
@@ -753,7 +763,7 @@ def between_tier_distances(
         + start_time
         + ".xlsx"
     )
-    distances_df.to_excel(results_dir + fname)
+    distances_df.to_excel(results_dir + filename)
 
     return distances_df
 
@@ -929,12 +939,12 @@ if __name__ == "__main__":
                     )
                 itercount += 1
 
-        fname: str = "breakdown_thresholds_{0:.2f}_{1:.3f}".format(
+        filename: str = "breakdown_thresholds_{0:.2f}_{1:.3f}".format(
             config["breakdown_thresholds"]["breakdown_threshold"],
             config["breakdown_thresholds"]["thinning_ratio"],
         )
-        fname = (
-            fname
+        filename = (
+            filename
             + "_"
             + os.path.basename(sys.argv[1]).replace(".xlsx", "")
             + "_"
@@ -942,7 +952,7 @@ if __name__ == "__main__":
             + ".xlsx"
         )
 
-        thresholds.to_excel(results_dir + fname)
+        thresholds.to_excel(results_dir + filename)
 
         print("\n")
 
