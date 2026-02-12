@@ -60,5 +60,9 @@
   "dependencies": {
     "@iarna/toml": "^2.2.5",
     "find-process": "^2.0.0"
+  },
+  "volta": {
+    "node": "24.13.1",
+    "pnpm": "10.29.3"
   }
 }
