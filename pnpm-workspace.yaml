@@ -1,2 +1,6 @@
+blockExoticSources: true
+
+minimumReleaseAge: 1440
+
 onlyBuiltDependencies:
   - electron
