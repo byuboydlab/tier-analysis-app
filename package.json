@@ -1,7 +1,8 @@
 {
   "name": "tier-analysis-app",
+  "desktopName": "io.github.byuboydlab.tier_analysis_app",
   "productName": "Cascading Failure Tier Analysis",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A graphical app wrapped around the byuboydlab/tier_analysis repo",
   "main": "src/main.js",
   "scripts": {
@@ -29,7 +30,8 @@
       ],
       "target": [
         "AppImage"
-      ]
+      ],
+      "category": "Science"
     },
     "win": {
       "extraFiles": [

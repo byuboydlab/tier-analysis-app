@@ -1,3 +1,6 @@
+allowBuilds:
+  electron-winstaller: true
+
 blockExoticSources: true
 
 minimumReleaseAge: 1440
