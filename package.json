@@ -54,15 +54,15 @@
   },
   "homepage": "https://github.com/byuboydlab/tier-analysis-app#readme",
   "devDependencies": {
-    "electron": "^42.0.0",
-    "electron-builder": "^26.8.1"
+    "electron": "^43.4.1",
+    "electron-builder": "^26.15.3"
   },
   "dependencies": {
     "@iarna/toml": "^2.2.5",
     "find-process": "^2.1.1"
   },
   "volta": {
-    "node": "24.13.1",
-    "pnpm": "10.29.3"
+    "node": "24.19.0",
+    "pnpm": "11.22.0"
   }
 }
